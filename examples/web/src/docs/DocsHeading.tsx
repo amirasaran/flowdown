@@ -1,5 +1,5 @@
 import React from 'react';
-import type { NodeRendererProps, HeadingNode } from 'flowdown/web';
+import type { NodeRendererProps, HeadingNode } from 'llm-markdown/web';
 
 /** Produce a URL-safe id from heading text so we can anchor-scroll to it. */
 function slugify(s: string): string {

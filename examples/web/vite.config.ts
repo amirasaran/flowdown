@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'flowdown/web': path.resolve(__dirname, '../../src/web/index.tsx'),
-      'flowdown': path.resolve(__dirname, '../../src/index.ts'),
+      'llm-markdown/web': path.resolve(__dirname, '../../src/web/index.tsx'),
+      'llm-markdown': path.resolve(__dirname, '../../src/index.ts'),
     },
   },
   server: {

@@ -1,4 +1,4 @@
-import type { DirectiveComponentProps } from 'flowdown/web';
+import type { DirectiveComponentProps } from 'llm-markdown/web';
 
 interface ToneColors {
   bg: string;

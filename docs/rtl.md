@@ -1,6 +1,6 @@
 # RTL / LTR auto-detection
 
-AI replies routinely mix scripts — English headings with Arabic prose, Persian lists with Latin code blocks, Hebrew quotes in English paragraphs. `flowdown` handles this without requiring you to annotate anything.
+AI replies routinely mix scripts — English headings with Arabic prose, Persian lists with Latin code blocks, Hebrew quotes in English paragraphs. `llm-markdown` handles this without requiring you to annotate anything.
 
 ## How it works
 

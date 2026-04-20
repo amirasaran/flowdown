@@ -5,9 +5,9 @@ All public exports. The API is identical on web and native unless marked otherwi
 ## `StreamMarkdown`
 
 ```ts
-import { StreamMarkdown } from 'flowdown/web';
+import { StreamMarkdown } from 'llm-markdown/web';
 // or
-import { StreamMarkdown } from 'flowdown/native';
+import { StreamMarkdown } from 'llm-markdown/native';
 ```
 
 ### Props
@@ -64,7 +64,7 @@ interface CardConfig {
 ## `useStreamMarkdown`
 
 ```ts
-import { useStreamMarkdown } from 'flowdown/web';
+import { useStreamMarkdown } from 'llm-markdown/web';
 
 const { tree } = useStreamMarkdown(text, {
   streaming: true,
@@ -149,7 +149,7 @@ interface DirectiveComponentProps {
 
 ## AST node types
 
-From `flowdown` (re-exported at package root and from `/web`, `/native`):
+From `llm-markdown` (re-exported at package root and from `/web`, `/native`):
 
 ```
 RootNode        ParagraphNode   HeadingNode     TextNode
@@ -185,7 +185,7 @@ import {
   defaultTheme, darkTheme, mergeTheme,
   parseAttributes,     // (attrString) → Record<string, string|number|boolean>
   OPAQUE_BODY_DIRECTIVES,
-} from 'flowdown';
+} from 'llm-markdown';
 ```
 
 Use these if you need to build a renderer pipeline outside React (e.g. server-side pre-processing).
@@ -194,7 +194,7 @@ Use these if you need to build a renderer pipeline outside React (e.g. server-si
 
 | import path                  | what you get                                                  |
 | ---------------------------- | ------------------------------------------------------------- |
-| `flowdown`            | core AST + hook + types (no React components)                 |
-| `flowdown/core`       | same as above (explicit alias)                                |
-| `flowdown/web`        | `StreamMarkdown` using React DOM primitives + web defaults    |
-| `flowdown/native`     | `StreamMarkdown` using React Native primitives + RN defaults  |
+| `llm-markdown`            | core AST + hook + types (no React components)                 |
+| `llm-markdown/core`       | same as above (explicit alias)                                |
+| `llm-markdown/web`        | `StreamMarkdown` using React DOM primitives + web defaults    |
+| `llm-markdown/native`     | `StreamMarkdown` using React Native primitives + RN defaults  |

@@ -14,10 +14,10 @@ const greeting: ChatMessage = {
   role: 'assistant',
   text:
     `# Welcome \u{1F44B}\n\n` +
-    `I'm a mock assistant that demos the **flowdown** library.\n\n` +
+    `I'm a mock assistant that demos the **llm-markdown** library.\n\n` +
     `- Type anything and I'll reply with the full feature tour.\n` +
     `- Or use a slash command — click the \`/\` button to see what's available.\n` +
-    `- User messages render through \`flowdown\` too, so feel free to send \`**bold**\`, tables, or \`:::callout\` blocks yourself.`,
+    `- User messages render through \`llm-markdown\` too, so feel free to send \`**bold**\`, tables, or \`:::callout\` blocks yourself.`,
   streaming: false,
   sentAt: Date.now(),
 };
@@ -200,7 +200,7 @@ function ChatHeader({
         SM
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-        <span style={{ color: c.text, fontWeight: 600 }}>flowdown · demo</span>
+        <span style={{ color: c.text, fontWeight: 600 }}>llm-markdown · demo</span>
         <span style={{ color: c.textMuted, fontSize: 12 }}>
           {streaming ? 'typing…' : 'online'}
         </span>

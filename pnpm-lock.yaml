@@ -51,7 +51,7 @@ importers:
       expo-status-bar:
         specifier: ~1.12.1
         version: 1.12.1
-      flowdown:
+      llm-markdown:
         specifier: workspace:*
         version: link:../..
       react:
@@ -91,7 +91,7 @@ importers:
 
   examples/web:
     dependencies:
-      flowdown:
+      llm-markdown:
         specifier: workspace:*
         version: link:../..
       react:

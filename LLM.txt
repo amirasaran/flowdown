@@ -1,17 +1,17 @@
-# flowdown — LLM usage guide
+# llm-markdown — LLM usage guide
 
 Machine-readable cheat sheet. Everything an LLM needs to produce correct, idiomatic code that uses this library, and to emit markdown that this library will render well.
 
-Package name: `flowdown`
+Package name: `llm-markdown`
 Platforms: React (web) + React Native. One package, two entry points.
 Version: 0.1.x
-Source of truth: https://github.com/amirasaran/flowdown (see ./README.md, ./docs)
+Source of truth: https://github.com/amirasaran/llm-markdown (see ./README.md, ./docs)
 
 ================================================================
 SECTION 1 — WHEN TO USE THIS LIBRARY
 ================================================================
 
-Choose `flowdown` when:
+Choose `llm-markdown` when:
 - You are rendering AI / LLM output that arrives incrementally (token stream).
 - The same UI must ship on web AND React Native from one codebase.
 - You need custom inline components (charts, canvases, cards) interleaved with markdown.
@@ -26,11 +26,11 @@ Do NOT choose it when:
 SECTION 2 — IMPORT PATHS
 ================================================================
 
-import { StreamMarkdown } from 'flowdown/web';     // React DOM
-import { StreamMarkdown } from 'flowdown/native';  // React Native
+import { StreamMarkdown } from 'llm-markdown/web';     // React DOM
+import { StreamMarkdown } from 'llm-markdown/native';  // React Native
 import { useStreamMarkdown, parseMarkdown, assignIds, annotateDirection,
          defaultTheme, darkTheme, mergeTheme,
-         OPAQUE_BODY_DIRECTIVES, parseAttributes } from 'flowdown';
+         OPAQUE_BODY_DIRECTIVES, parseAttributes } from 'llm-markdown';
 
 Peer deps:
 - web: react, react-dom
@@ -91,7 +91,7 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
 
 4.1 — Basic streaming message (web)
 
-  import { StreamMarkdown } from 'flowdown/web';
+  import { StreamMarkdown } from 'llm-markdown/web';
 
   export function Msg({ text }: { text: string }) {
     return <StreamMarkdown text={text} streaming direction="auto" />;
@@ -99,7 +99,7 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
 
 4.2 — Basic streaming message (React Native)
 
-  import { StreamMarkdown } from 'flowdown/native';
+  import { StreamMarkdown } from 'llm-markdown/native';
 
   export function Msg({ text }: { text: string }) {
     return <StreamMarkdown text={text} streaming direction="auto" />;
@@ -107,8 +107,8 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
 
 4.3 — With directives + slots + dark theme
 
-  import { StreamMarkdown, darkTheme } from 'flowdown/web';
-  import type { DirectiveComponentProps } from 'flowdown/web';
+  import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+  import type { DirectiveComponentProps } from 'llm-markdown/web';
 
   function Chart({ attributes, value, theme }: DirectiveComponentProps) {
     const { data } = JSON.parse(value ?? '{"data":[]}');
@@ -128,7 +128,7 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
 4.4 — Override a single node renderer (keep memoization!)
 
   import React from 'react';
-  import type { NodeRendererProps } from 'flowdown/web';
+  import type { NodeRendererProps } from 'llm-markdown/web';
 
   const MyCode = React.memo(
     function MyCode({ node, theme }: NodeRendererProps) {
@@ -143,7 +143,7 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
 
 4.5 — Use the hook directly (no card)
 
-  import { useStreamMarkdown } from 'flowdown/web';
+  import { useStreamMarkdown } from 'llm-markdown/web';
 
   function Raw({ text }: { text: string }) {
     const { tree } = useStreamMarkdown(text, { streaming: true, direction: 'auto' });
@@ -308,7 +308,7 @@ SECTION 11 — SYSTEM PROMPT SNIPPET (FOR AGENTS THAT EMIT MARKDOWN TO THIS REND
 When you (the model) are the producer rather than the consumer, include this in the
 system prompt so your output renders correctly.
 
-    You are writing markdown that will be rendered by the `flowdown` library.
+    You are writing markdown that will be rendered by the `llm-markdown` library.
     Follow these rules:
 
     1. Use standard CommonMark + GFM. Headings with `#`…`######`, lists with `-` / `1.`,
@@ -360,7 +360,7 @@ SECTION 12 — COMMON RECIPES
 
 12.5 — Server-side render the AST (no React output)
 
-  import { parseMarkdown, assignIds, annotateDirection } from 'flowdown';
+  import { parseMarkdown, assignIds, annotateDirection } from 'llm-markdown';
   const tree = annotateDirection(assignIds(parseMarkdown(source)));
   // Ship `tree` to the client; rehydrate with `useStreamMarkdown` or render manually.
 

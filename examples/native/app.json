@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "flowdown-example-native",
-    "slug": "flowdown-example-native",
+    "name": "llm-markdown-example-native",
+    "slug": "llm-markdown-example-native",
     "version": "0.0.0",
     "orientation": "portrait",
     "scheme": "streammarkdown",

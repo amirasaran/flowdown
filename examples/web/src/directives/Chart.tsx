@@ -1,4 +1,4 @@
-import type { DirectiveComponentProps } from 'flowdown/web';
+import type { DirectiveComponentProps } from 'llm-markdown/web';
 import { chartPayload } from '../../../shared/demo-content';
 
 const BAR_AREA_HEIGHT = 140;

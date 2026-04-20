@@ -1,4 +1,4 @@
-import type { CardAnimationPreset, Direction } from 'flowdown/native';
+import type { CardAnimationPreset, Direction } from 'llm-markdown/native';
 
 export type Route = 'playground' | 'chat';
 

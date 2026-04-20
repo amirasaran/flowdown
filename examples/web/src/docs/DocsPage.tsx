@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
-import { StreamMarkdown, darkTheme } from 'flowdown/web';
-import type { ComponentOverrides, DirectiveRegistry } from 'flowdown/web';
+import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+import type { ComponentOverrides, DirectiveRegistry } from 'llm-markdown/web';
 import { MOBILE_QUERY, useMediaQuery } from '../useMediaQuery';
 import { Drawer } from '../components/Drawer';
 import { AppNav } from '../components/AppNav';
@@ -79,7 +79,7 @@ export function DocsPage({ onNavigate }: { onNavigate: (r: Route) => void }) {
         ) : null}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>
-            flowdown
+            llm-markdown
           </div>
           <div style={{ fontSize: isMobile ? 14 : 18, fontWeight: 700 }}>Documentation</div>
         </div>

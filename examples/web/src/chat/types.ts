@@ -1,7 +1,7 @@
 import type {
   CardAnimationPreset,
   Direction,
-} from 'flowdown/web';
+} from 'llm-markdown/web';
 
 export type ChatRole = 'user' | 'assistant';
 

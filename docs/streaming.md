@@ -1,6 +1,6 @@
 # Streaming model
 
-`flowdown` is built around the assumption that **the text is still growing**. That changes three things versus a static renderer.
+`llm-markdown` is built around the assumption that **the text is still growing**. That changes three things versus a static renderer.
 
 ## 1. The parser tolerates partial tokens
 
@@ -30,7 +30,7 @@ Combined with the default `React.memo` comparator (`a.node.id === b.node.id`), a
 `useStreamMarkdown(text, options)` holds the last parse in a ref. If you pass the same `text`, it returns the same tree identity (no recompute). If `text` grows, it reparses and annotates direction once, then hands back a new tree.
 
 ```ts
-import { useStreamMarkdown } from 'flowdown/web';
+import { useStreamMarkdown } from 'llm-markdown/web';
 
 const { tree } = useStreamMarkdown(text, { streaming: true, direction: 'auto' });
 ```

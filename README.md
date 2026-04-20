@@ -1,11 +1,11 @@
-# flowdown
+# llm-markdown
 
 > Universal streaming markdown renderer for **React** and **React Native**, built for AI output.
 
 One package, two platforms, every visual fully overridable. Optimized for the streaming case that breaks most markdown renderers: partial tokens, unclosed blocks, mixed RTL/LTR content, and inline custom widgets like charts and canvases.
 
 ```tsx
-import { StreamMarkdown } from 'flowdown/web'; // or 'flowdown/native'
+import { StreamMarkdown } from 'llm-markdown/web'; // or 'llm-markdown/native'
 
 <StreamMarkdown
   text={aiStreamingText}
@@ -20,11 +20,11 @@ import { StreamMarkdown } from 'flowdown/web'; // or 'flowdown/native'
 
 ## Why this library
 
-| Problem with typical renderers                                        | How `flowdown` handles it                                                                     |
+| Problem with typical renderers                                        | How `llm-markdown` handles it                                                                     |
 | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | Re-mount the whole tree on every token, dropping frames               | Stable content-hash node ids + `React.memo` — unchanged subtrees never re-render while streaming     |
 | Blank out when a code fence or table is half-written                  | Parser tolerates unclosed blocks and tags pending nodes with `streaming: true` so you can style them |
-| Need separate libraries for web and mobile                            | Single package, platform exports `flowdown/web` and `flowdown/native`                  |
+| Need separate libraries for web and mobile                            | Single package, platform exports `llm-markdown/web` and `llm-markdown/native`                  |
 | Custom widgets (charts, canvas) require escape hatches or raw HTML    | First-class `:::directive{attrs}` syntax + component registry                                        |
 | Wrong direction when AI mixes Arabic, Hebrew, and English in one reply| Per-block first-strong-character detection (Unicode Bidi P2)                                         |
 | Wide tables overflow the card and break layout                        | Automatic horizontal scroll for tables and long code blocks                                          |
@@ -36,10 +36,10 @@ import { StreamMarkdown } from 'flowdown/web'; // or 'flowdown/native'
 
 ```bash
 # peer deps you need for web
-npm i flowdown react react-dom
+npm i llm-markdown react react-dom
 
 # peer deps for React Native (reanimated enables card animations; optional)
-npm i flowdown react react-native react-native-reanimated
+npm i llm-markdown react react-native react-native-reanimated
 ```
 
 Supported React versions: `18.x` and `19.x`.
@@ -51,7 +51,7 @@ Supported React versions: `18.x` and `19.x`.
 ### Web
 
 ```tsx
-import { StreamMarkdown } from 'flowdown/web';
+import { StreamMarkdown } from 'llm-markdown/web';
 
 export function Message({ text }: { text: string }) {
   return (
@@ -68,7 +68,7 @@ export function Message({ text }: { text: string }) {
 ### React Native
 
 ```tsx
-import { StreamMarkdown } from 'flowdown/native';
+import { StreamMarkdown } from 'llm-markdown/native';
 
 export function Message({ text }: { text: string }) {
   return (

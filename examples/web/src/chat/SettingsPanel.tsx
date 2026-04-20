@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import type { CardAnimationPreset, Direction } from 'flowdown/web';
+import type { CardAnimationPreset, Direction } from 'llm-markdown/web';
 import type { ChatSettings } from './types';
 import { pick } from './theme';
 
@@ -46,7 +46,7 @@ export function SettingsPanel({
         }}
       >
         <div style={{ fontSize: 11, fontWeight: 700, color: c.textMuted, letterSpacing: 0.6 }}>
-          FLOWDOWN
+          LLM-MARKDOWN
         </div>
         <div style={{ color: c.text, fontWeight: 600, marginTop: 2 }}>Settings</div>
       </div>

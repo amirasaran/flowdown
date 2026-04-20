@@ -1,16 +1,16 @@
 {
-  "name": "flowdown",
+  "name": "llm-markdown",
   "version": "0.1.0",
   "description": "Universal streaming markdown renderer for React and React Native, built for AI output.",
   "license": "MIT",
   "author": "Amir Asaran",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/amirasaran/flowdown.git"
+    "url": "git+https://github.com/amirasaran/llm-markdown.git"
   },
-  "homepage": "https://github.com/amirasaran/flowdown#readme",
+  "homepage": "https://github.com/amirasaran/llm-markdown#readme",
   "bugs": {
-    "url": "https://github.com/amirasaran/flowdown/issues"
+    "url": "https://github.com/amirasaran/llm-markdown/issues"
   },
   "packageManager": "pnpm@10.20.0",
   "engines": {
@@ -58,8 +58,8 @@
     "test": "vitest run",
     "version": "changeset version",
     "release": "pnpm build && changeset publish",
-    "example:web": "pnpm --filter flowdown-example-web dev",
-    "example:native": "pnpm --filter flowdown-example-native start"
+    "example:web": "pnpm --filter llm-markdown-example-web dev",
+    "example:native": "pnpm --filter llm-markdown-example-native start"
   },
   "peerDependencies": {
     "react": ">=18.0.0",

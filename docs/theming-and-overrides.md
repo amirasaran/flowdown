@@ -43,7 +43,7 @@ Has no effect on web — HTML's `<table>` sizing algorithm handles columns nativ
 Usage:
 
 ```tsx
-import { StreamMarkdown, darkTheme } from 'flowdown/web';
+import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
 
 <StreamMarkdown
   text={text}
@@ -65,7 +65,7 @@ Ship-supplied presets: `defaultTheme` and `darkTheme`. Both are plain objects �
 Every node type can be replaced with a component of your own. The override receives the parsed node, the merged theme, and any already-rendered children.
 
 ```tsx
-import type { NodeRendererProps } from 'flowdown/web';
+import type { NodeRendererProps } from 'llm-markdown/web';
 
 function MyLink({ node, children, theme }: NodeRendererProps) {
   const { url, title } = node as { url: string; title?: string };
@@ -127,7 +127,7 @@ function MyHeading({ node, children, theme }: NodeRendererProps) {
 Or import the exact node type:
 
 ```ts
-import type { HeadingNode } from 'flowdown';
+import type { HeadingNode } from 'llm-markdown';
 function MyHeading({ node }: { node: HeadingNode }) { /* … */ }
 ```
 

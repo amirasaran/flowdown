@@ -40,7 +40,7 @@ Numbers (`-?\d+(\.\d+)?`) auto-coerce to `number`. `true`/`false` coerce to `boo
 ## Registering a directive
 
 ```tsx
-import type { DirectiveComponentProps } from 'flowdown/web';
+import type { DirectiveComponentProps } from 'llm-markdown/web';
 
 function PriceCard({ attributes, theme }: DirectiveComponentProps) {
   const symbol = String(attributes.symbol ?? '—');
@@ -86,7 +86,7 @@ function Callout({ attributes, children, theme }: DirectiveComponentProps) {
 If you need a new directive with an opaque body, export it from a forked `directives.ts` or wrap your registry:
 
 ```ts
-import { OPAQUE_BODY_DIRECTIVES } from 'flowdown';
+import { OPAQUE_BODY_DIRECTIVES } from 'llm-markdown';
 OPAQUE_BODY_DIRECTIVES.add('svg');
 ```
 

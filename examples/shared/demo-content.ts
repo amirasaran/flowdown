@@ -1,4 +1,4 @@
-export const demoMarkdown = `# Flowdown Demo
+export const demoMarkdown = `# LLM Markdown Demo
 
 This is a **universal** markdown renderer designed for *AI-streamed* output. It supports every common markdown feature plus custom widgets.
 
@@ -215,7 +215,7 @@ Watch out for \`edge cases\` in streamed output.
 :::
 `;
 
-export const persianMarkdown = `# راهنمای استفاده از flowdown
+export const persianMarkdown = `# راهنمای استفاده از llm-markdown
 
 این کتابخانه یک **رندرر مارک‌داون** قدرتمند است که به طور خاص برای خروجی‌های *جریان‌دار* هوش مصنوعی طراحی شده. روی وب و ری‌اکت نیتیو با یک پکیج واحد کار می‌کند.
 
@@ -285,7 +285,7 @@ console.log(greet("دنیا")); // → سلام، دنیا!
 _انتهای نمونه فارسی._
 `;
 
-export const arabicMarkdown = `# دليل استخدام flowdown
+export const arabicMarkdown = `# دليل استخدام llm-markdown
 
 هذه المكتبة هي **عارض ماركداون** قوي مُصمَّم خصّيصًا للمخرجات *المتدفقة* من نماذج الذكاء الاصطناعي. تعمل على الويب وReact Native من حزمة واحدة.
 

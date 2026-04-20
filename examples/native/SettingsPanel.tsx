@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
-import type { CardAnimationPreset, Direction } from 'flowdown/native';
+import type { CardAnimationPreset, Direction } from 'llm-markdown/native';
 import type { Settings } from './types';
 import { pick } from './theme';
 

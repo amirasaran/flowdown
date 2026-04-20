@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { StreamMarkdown, darkTheme } from 'flowdown/web';
+import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
 import type {
   CardAnimationPreset,
   DirectiveRegistry,
   Direction,
-} from 'flowdown/web';
+} from 'llm-markdown/web';
 import { presets } from '../../../shared/demo-content';
 import { Chart } from '../directives/Chart';
 import { Callout } from '../directives/Callout';
@@ -298,7 +298,7 @@ export function Playground({
             <div style={{ fontSize: 10, fontWeight: 700, color: muted, letterSpacing: 0.6, textTransform: 'uppercase' }}>
               Playground
             </div>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>flowdown</div>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>llm-markdown</div>
           </div>
           <AppNav current="/" onNavigate={onNavigate} dark={dark} />
         </div>
@@ -400,7 +400,7 @@ export function Playground({
             after={
               showAfter ? (
                 <div style={{ fontSize: 12, color: muted, fontStyle: 'italic' }}>
-                  Rendered by flowdown
+                  Rendered by llm-markdown
                 </div>
               ) : undefined
             }

@@ -3,9 +3,9 @@
 ## Install
 
 ```bash
-npm i flowdown react react-dom
+npm i llm-markdown react react-dom
 # or, for React Native:
-npm i flowdown react react-native react-native-reanimated
+npm i llm-markdown react react-native react-native-reanimated
 ```
 
 Peer deps:
@@ -21,7 +21,7 @@ The library ships both ESM and CJS plus full type definitions. Tree-shakes the p
 
 ```tsx
 // web
-import { StreamMarkdown } from 'flowdown/web';
+import { StreamMarkdown } from 'llm-markdown/web';
 
 export function AssistantMessage({ text }: { text: string }) {
   return <StreamMarkdown text={text} streaming direction="auto" />;
@@ -30,7 +30,7 @@ export function AssistantMessage({ text }: { text: string }) {
 
 ```tsx
 // React Native
-import { StreamMarkdown } from 'flowdown/native';
+import { StreamMarkdown } from 'llm-markdown/native';
 
 export function AssistantMessage({ text }: { text: string }) {
   return <StreamMarkdown text={text} streaming direction="auto" />;
@@ -45,7 +45,7 @@ Any source that incrementally updates a string works. Example with `fetch` + a S
 
 ```tsx
 import { useState, useEffect } from 'react';
-import { StreamMarkdown } from 'flowdown/web';
+import { StreamMarkdown } from 'llm-markdown/web';
 
 export function Streamed({ prompt }: { prompt: string }) {
   const [text, setText] = useState('');
@@ -101,7 +101,7 @@ The card wraps your content and accepts slots. Useful for showing role, tools, c
 Every node type can be replaced:
 
 ```tsx
-import type { NodeRendererProps } from 'flowdown/web';
+import type { NodeRendererProps } from 'llm-markdown/web';
 
 function MyCode({ node, theme }: NodeRendererProps) {
   const code = (node as { value: string }).value;
@@ -116,7 +116,7 @@ See [Theming & component overrides](./theming-and-overrides.md) for the full lis
 ## Registering a directive (custom widget)
 
 ```tsx
-import type { DirectiveComponentProps } from 'flowdown/web';
+import type { DirectiveComponentProps } from 'llm-markdown/web';
 
 function PriceCard({ attributes, theme }: DirectiveComponentProps) {
   const symbol = String(attributes.symbol);
