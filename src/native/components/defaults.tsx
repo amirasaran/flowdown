@@ -17,8 +17,26 @@ import type {
   TableCellNode,
   BaseNode,
 } from '../../core/parser/ast';
-import { View, Text, Image, Linking, Pressable } from '../rn';
+import { View, Text, TextInput, Image, Linking, Pressable } from '../rn';
 import { HScroll } from '../scroll/HScroll';
+import {
+  SelectableStringText,
+  useTextSelection,
+  warnRichParagraphOnce,
+} from './selectableText';
+
+/** True when every AST child is a plain text node — i.e. the block has no
+ *  bold/italic/link/inline-code children. Such blocks can render via
+ *  <TextInput editable={false}> (which shows selection highlight correctly
+ *  on iOS Fabric) without losing any formatting. */
+function allPlainText(children: Array<{ type: string }>): boolean {
+  return children.length > 0 && children.every((c) => c.type === 'text');
+}
+
+/** Concat plain-text children into a single string. */
+function flattenPlainText(children: Array<{ type: string; value?: string }>): string {
+  return children.map((c) => c.value ?? '').join('');
+}
 
 const memoEqual = (
   a: { node: BaseNode; theme: Theme },
@@ -38,6 +56,7 @@ export const HeadingR = memo(function HeadingR({
   children?: ReactNode;
   theme: Theme;
 }) {
+  const sel = useTextSelection();
   const sizeMap: Record<number, number> = {
     1: theme.typography.sizeH1,
     2: theme.typography.sizeH2,
@@ -46,20 +65,45 @@ export const HeadingR = memo(function HeadingR({
     5: theme.typography.sizeBase,
     6: theme.typography.sizeBase,
   };
-  return (
-    <Text
-      style={{
-        fontSize: sizeMap[node.depth],
-        fontWeight: '700',
-        color: theme.colors.text,
-        marginTop: theme.spacing.lg,
-        marginBottom: theme.spacing.sm,
-        writingDirection: node.dir,
-      }}
-    >
-      {children}
-    </Text>
-  );
+  const headingStyle = {
+    fontSize: sizeMap[node.depth],
+    fontWeight: '700' as const,
+    color: theme.colors.text,
+    marginTop: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
+    writingDirection: node.dir,
+  };
+  // When selection is on, use TextInput instead of Text. On iOS multiline
+  // TextInput maps to UITextView, which supports attributed text from
+  // <Text> children AND renders selection highlights correctly (the plain
+  // <Text selectable> does not on Fabric). On plain headings we use `value`
+  // since there's no rich formatting to preserve.
+  if (sel.enabled) {
+    if (allPlainText(node.children)) {
+      return (
+        <TextInput
+          value={flattenPlainText(node.children)}
+          editable={false}
+          multiline
+          scrollEnabled={false}
+          textAlignVertical="top"
+          style={headingStyle}
+        />
+      );
+    }
+    return (
+      <TextInput
+        editable={false}
+        multiline
+        scrollEnabled={false}
+        textAlignVertical="top"
+        style={headingStyle}
+      >
+        {children}
+      </TextInput>
+    );
+  }
+  return <Text style={headingStyle}>{children}</Text>;
 }, memoEqual);
 
 export const ParagraphR = memo(function ParagraphR({
@@ -71,6 +115,7 @@ export const ParagraphR = memo(function ParagraphR({
   children?: ReactNode;
   theme: Theme;
 }) {
+  const sel = useTextSelection();
   // RN forbids <Image> (and most non-Text views) as a child of <Text>. If the
   // paragraph contains any image child, fall back to a View wrapper so each
   // rendered child becomes a block-level sibling instead of a Text descendant.
@@ -87,19 +132,48 @@ export const ParagraphR = memo(function ParagraphR({
       </View>
     );
   }
-  return (
-    <Text
-      style={{
-        color: theme.colors.text,
-        fontSize: theme.typography.sizeBase,
-        lineHeight: theme.typography.sizeBase * theme.typography.lineHeight,
-        marginVertical: theme.spacing.sm,
-        writingDirection: node.dir,
-      }}
-    >
-      {children}
-    </Text>
-  );
+  const paragraphStyle = {
+    color: theme.colors.text,
+    fontSize: theme.typography.sizeBase,
+    lineHeight: theme.typography.sizeBase * theme.typography.lineHeight,
+    marginVertical: theme.spacing.sm,
+    writingDirection: node.dir,
+  };
+  // Use TextInput when selection is enabled. On iOS multiline TextInput is
+  // a UITextView which accepts <Text> children as attributed text AND
+  // renders selection highlights properly (the plain <Text selectable>
+  // does not on Fabric). For rich paragraphs (with bold/italic/link/code
+  // children) we keep children as-is so formatting is preserved; for
+  // plain-text paragraphs we go through `value` for a tighter render.
+  if (sel.enabled) {
+    if (allPlainText(node.children)) {
+      return (
+        <TextInput
+          value={flattenPlainText(node.children)}
+          editable={false}
+          multiline
+          scrollEnabled={false}
+          textAlignVertical="top"
+          style={paragraphStyle}
+        />
+      );
+    }
+    // Rich children: custom menu actions via react-native-selectable-text
+    // still can't reach these (that lib needs a flat value string).
+    if (sel.actions && sel.actions.length > 0) warnRichParagraphOnce();
+    return (
+      <TextInput
+        editable={false}
+        multiline
+        scrollEnabled={false}
+        textAlignVertical="top"
+        style={paragraphStyle}
+      >
+        {children}
+      </TextInput>
+    );
+  }
+  return <Text style={paragraphStyle}>{children}</Text>;
 }, memoEqual);
 
 export const TextR = memo(function TextR({ node }: { node: TextNode; theme: Theme }) {
@@ -167,16 +241,14 @@ export const CodeR = memo(function CodeR({ node, theme }: { node: CodeNode; them
       }}
     >
       <HScroll>
-        <Text
+        <SelectableStringText
+          value={node.value}
           style={{
             fontFamily: theme.typography.monoFamily,
             color: theme.colors.codeText,
             fontSize: theme.typography.sizeSmall,
           }}
-          selectable
-        >
-          {node.value}
-        </Text>
+        />
       </HScroll>
     </View>
   );
@@ -416,6 +488,11 @@ export const TableCellR = memo(function TableCellR({
   theme: Theme;
 }) {
   const colWidth = useContext(TableColumnWidthContext);
+  const sel = useTextSelection();
+  const cellTextStyle = {
+    color: theme.colors.text,
+    fontWeight: (node.header ? '600' : '400') as '600' | '400',
+  };
   return (
     <View
       style={{
@@ -426,14 +503,30 @@ export const TableCellR = memo(function TableCellR({
         justifyContent: 'center',
       }}
     >
-      <Text
-        style={{
-          color: theme.colors.text,
-          fontWeight: node.header ? '600' : '400',
-        }}
-      >
-        {children}
-      </Text>
+      {sel.enabled ? (
+        allPlainText(node.children) ? (
+          <TextInput
+            value={flattenPlainText(node.children)}
+            editable={false}
+            multiline
+            scrollEnabled={false}
+            textAlignVertical="top"
+            style={cellTextStyle}
+          />
+        ) : (
+          <TextInput
+            editable={false}
+            multiline
+            scrollEnabled={false}
+            textAlignVertical="top"
+            style={cellTextStyle}
+          >
+            {children}
+          </TextInput>
+        )
+      ) : (
+        <Text style={cellTextStyle}>{children}</Text>
+      )}
     </View>
   );
 }, memoEqual);

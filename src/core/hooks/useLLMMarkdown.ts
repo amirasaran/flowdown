@@ -3,19 +3,19 @@ import { incrementalParse, type IncrementalState } from '../parser/incremental';
 import { annotateDirection } from '../bidi/detect';
 import type { RootNode, Direction } from '../parser/ast';
 
-export interface UseStreamMarkdownOptions {
+export interface UseLLMMarkdownOptions {
   streaming?: boolean;
   direction?: 'auto' | Direction;
 }
 
-export interface UseStreamMarkdownResult {
+export interface UseLLMMarkdownResult {
   tree: RootNode;
 }
 
-export function useStreamMarkdown(
+export function useLLMMarkdown(
   text: string,
-  options: UseStreamMarkdownOptions = {}
-): UseStreamMarkdownResult {
+  options: UseLLMMarkdownOptions = {}
+): UseLLMMarkdownResult {
   const { streaming = true, direction = 'auto' } = options;
   const stateRef = useRef<IncrementalState | undefined>(undefined);
 

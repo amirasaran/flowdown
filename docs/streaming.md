@@ -27,15 +27,15 @@ Combined with the default `React.memo` comparator (`a.node.id === b.node.id`), a
 
 ## 3. The hook keeps state across updates
 
-`useStreamMarkdown(text, options)` holds the last parse in a ref. If you pass the same `text`, it returns the same tree identity (no recompute). If `text` grows, it reparses and annotates direction once, then hands back a new tree.
+`useLLMMarkdown(text, options)` holds the last parse in a ref. If you pass the same `text`, it returns the same tree identity (no recompute). If `text` grows, it reparses and annotates direction once, then hands back a new tree.
 
 ```ts
-import { useStreamMarkdown } from 'llm-markdown/web';
+import { useLLMMarkdown } from 'llm-markdown/web';
 
-const { tree } = useStreamMarkdown(text, { streaming: true, direction: 'auto' });
+const { tree } = useLLMMarkdown(text, { streaming: true, direction: 'auto' });
 ```
 
-You can use the hook without the `StreamMarkdown` component if you want to render the tree yourself.
+You can use the hook without the `LLMMarkdown` component if you want to render the tree yourself.
 
 ## Practical notes
 

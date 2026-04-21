@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
 import type {
   CardAnimationPreset,
   DirectiveRegistry,
@@ -364,7 +364,7 @@ export function Playground({
             </div>
           ) : null}
 
-          <StreamMarkdown
+          <LLMMarkdown
             text={text}
             streaming={streaming}
             directives={directives}

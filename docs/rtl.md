@@ -24,9 +24,9 @@ Inline runs inherit the block they live in.
 ## The `direction` prop
 
 ```tsx
-<StreamMarkdown text={text} direction="auto" />  // default
-<StreamMarkdown text={text} direction="ltr"  />  // force whole document LTR
-<StreamMarkdown text={text} direction="rtl"  />  // force whole document RTL
+<LLMMarkdown text={text} direction="auto" />  // default
+<LLMMarkdown text={text} direction="ltr"  />  // force whole document LTR
+<LLMMarkdown text={text} direction="rtl"  />  // force whole document RTL
 ```
 
 | value   | behavior                                                                               |

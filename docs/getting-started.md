@@ -21,19 +21,19 @@ The library ships both ESM and CJS plus full type definitions. Tree-shakes the p
 
 ```tsx
 // web
-import { StreamMarkdown } from 'llm-markdown/web';
+import { LLMMarkdown } from 'llm-markdown/web';
 
 export function AssistantMessage({ text }: { text: string }) {
-  return <StreamMarkdown text={text} streaming direction="auto" />;
+  return <LLMMarkdown text={text} streaming direction="auto" />;
 }
 ```
 
 ```tsx
 // React Native
-import { StreamMarkdown } from 'llm-markdown/native';
+import { LLMMarkdown } from 'llm-markdown/native';
 
 export function AssistantMessage({ text }: { text: string }) {
-  return <StreamMarkdown text={text} streaming direction="auto" />;
+  return <LLMMarkdown text={text} streaming direction="auto" />;
 }
 ```
 
@@ -45,7 +45,7 @@ Any source that incrementally updates a string works. Example with `fetch` + a S
 
 ```tsx
 import { useState, useEffect } from 'react';
-import { StreamMarkdown } from 'llm-markdown/web';
+import { LLMMarkdown } from 'llm-markdown/web';
 
 export function Streamed({ prompt }: { prompt: string }) {
   const [text, setText] = useState('');
@@ -69,7 +69,7 @@ export function Streamed({ prompt }: { prompt: string }) {
     return () => { cancelled = true; };
   }, [prompt]);
 
-  return <StreamMarkdown text={text} streaming={!done} />;
+  return <LLMMarkdown text={text} streaming={!done} />;
 }
 ```
 
@@ -80,7 +80,7 @@ Because the parser tolerates partial/unclosed markdown, you can push `buf` on ev
 The card wraps your content and accepts slots. Useful for showing role, tools, citations, etc.:
 
 ```tsx
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   streaming
   header={<div>Thread · April 2026</div>}
@@ -108,7 +108,7 @@ function MyCode({ node, theme }: NodeRendererProps) {
   return <pre className="my-code">{code}</pre>;
 }
 
-<StreamMarkdown text={text} components={{ code: MyCode }} />;
+<LLMMarkdown text={text} components={{ code: MyCode }} />;
 ```
 
 See [Theming & component overrides](./theming-and-overrides.md) for the full list of node types and the override contract.
@@ -123,7 +123,7 @@ function PriceCard({ attributes, theme }: DirectiveComponentProps) {
   return <div className="price-card">Latest price of {symbol}…</div>;
 }
 
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   directives={{ price: PriceCard }}
 />;

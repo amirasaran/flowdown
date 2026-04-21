@@ -32,7 +32,7 @@ interface Theme {
 Per-column target width for tables. When `numCols * tableColumnWidth` exceeds the viewport, the table scrolls horizontally with each column at this width; otherwise it fills the viewport with columns at least this wide. Raise it for roomier cells (and more scroll on narrow screens); lower it for more density.
 
 ```tsx
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   theme={{ layout: { tableColumnWidth: 180 } }}
 />
@@ -43,9 +43,9 @@ Has no effect on web — HTML's `<table>` sizing algorithm handles columns nativ
 Usage:
 
 ```tsx
-import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
 
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   theme={{
     colors: { accent: '#ef4444', link: '#0ea5e9' },
@@ -55,7 +55,7 @@ import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
 />
 
 // Or swap the whole palette:
-<StreamMarkdown text={text} theme={darkTheme} />
+<LLMMarkdown text={text} theme={darkTheme} />
 ```
 
 Ship-supplied presets: `defaultTheme` and `darkTheme`. Both are plain objects — compose or clone freely.
@@ -81,7 +81,7 @@ function MyLink({ node, children, theme }: NodeRendererProps) {
   );
 }
 
-<StreamMarkdown text={text} components={{ link: MyLink }} />;
+<LLMMarkdown text={text} components={{ link: MyLink }} />;
 ```
 
 ### Full list of override keys

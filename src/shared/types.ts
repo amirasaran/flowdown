@@ -103,6 +103,29 @@ export type DirectiveRegistry = Record<string, ComponentType<DirectiveComponentP
 
 export type CardAnimationPreset = 'none' | 'fade' | 'fadeSlide' | 'scale' | 'typewriter';
 
+export interface TextSelectionAction {
+  /** Label shown in the selection menu. */
+  label: string;
+  /** Fired when the user picks this action. Receives the currently selected text. */
+  onPress: (selectedText: string) => void;
+}
+
+export interface TextSelectionConfig {
+  /** Master switch — when false all text-selection behavior is disabled. */
+  enabled: boolean;
+  /** Custom menu actions shown alongside the system defaults.
+   *  Native: requires optional peer `react-native-selectable-text`; when it
+   *  isn't installed we fall back to `selectable` with the system menu only.
+   *  Web: rendered in a floating action bar anchored to the selection. */
+  actions?: TextSelectionAction[];
+  /** Fired whenever the user's selection inside this card changes.
+   *  Receives the selected text ('' when selection clears). */
+  onSelect?: (selectedText: string) => void;
+}
+
+/** Shorthand: `textSelection={true}` ≡ `{ enabled: true }`. */
+export type TextSelection = boolean | TextSelectionConfig;
+
 export interface CardConfig {
   animation?: CardAnimationPreset;
   enterDuration?: number;
@@ -114,7 +137,7 @@ export interface CardConfig {
   borderWidth?: number;
 }
 
-export interface StreamMarkdownProps {
+export interface LLMMarkdownProps {
   /** The markdown text. Can change incrementally while streaming. */
   text: string;
   /** When true, the parser tolerates unclosed blocks and emits streaming: true on pending nodes. */
@@ -143,6 +166,10 @@ export interface StreamMarkdownProps {
   onHeadingInView?: (id: string, depth: number, text: string) => void;
   /** Escape hatch: called right before a directive renders, can return a replacement node. */
   onDirectiveRender?: (node: DirectiveNode) => ReactNode | null | undefined;
+  /** Enable text selection with optional custom menu actions.
+   *  `true` is sugar for `{ enabled: true }` (system menu only). Pass a config
+   *  to add custom actions or listen to selection changes. */
+  textSelection?: TextSelection;
 }
 
 export type DeepPartial<T> = T extends object

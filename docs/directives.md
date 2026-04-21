@@ -47,7 +47,7 @@ function PriceCard({ attributes, theme }: DirectiveComponentProps) {
   return <span style={{ color: theme.colors.accent }}>{symbol}</span>;
 }
 
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   directives={{ price: PriceCard }}
 />;

@@ -39,10 +39,22 @@ type PressableLike = ComponentType<{
   onPress?: () => void;
   style?: unknown;
 }>;
+type TextInputLike = ComponentType<{
+  children?: ReactNode;
+  value?: string;
+  editable?: boolean;
+  multiline?: boolean;
+  scrollEnabled?: boolean;
+  style?: unknown;
+  selectTextOnFocus?: boolean;
+  textAlignVertical?: 'top' | 'center' | 'bottom';
+  onChangeText?: (t: string) => void;
+}>;
 
 interface RNModule {
   View: ViewLike;
   Text: TextLike;
+  TextInput: TextInputLike;
   ScrollView: ScrollViewLike;
   Image: ImageLike;
   Pressable: PressableLike;
@@ -60,6 +72,7 @@ const RN = RN_ as unknown as RNModule;
 
 export const View = RN.View;
 export const Text = RN.Text;
+export const TextInput = RN.TextInput;
 export const ScrollView = RN.ScrollView;
 export const Image = RN.Image;
 export const Pressable = RN.Pressable;

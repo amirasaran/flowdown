@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { StreamMarkdown, darkTheme } from 'llm-markdown/native';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/native';
 import type { DirectiveRegistry } from 'llm-markdown/native';
 import { Chart } from '../directives/Chart';
 import { Callout } from '../directives/Callout';
@@ -78,12 +78,13 @@ export function MessageBubble({
             : { width: '88%', maxWidth: '88%' }
         }
       >
-        <StreamMarkdown
+        <LLMMarkdown
           text={message.text}
           streaming={!isUser && message.streaming}
           directives={directives}
           direction={settings.direction}
           theme={theme}
+          textSelection
           card={bubbleCard}
           header={
             settings.showHeader ? (

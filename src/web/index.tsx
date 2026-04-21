@@ -1,15 +1,17 @@
-import { useMemo } from 'react';
-import type { StreamMarkdownProps } from '../shared/types';
-import { useStreamMarkdown } from '../core/hooks/useStreamMarkdown';
+import { useMemo, useRef } from 'react';
+import type { LLMMarkdownProps } from '../shared/types';
+import { useLLMMarkdown } from '../core/hooks/useLLMMarkdown';
 import {
   RendererContext,
   type RendererContextValue,
 } from '../core/registry/componentRegistry';
 import { defaultTheme, mergeTheme } from '../core/registry/theme';
+import { normalizeTextSelection } from '../core/textSelection';
 import { Card } from './Card';
 import { RenderNode } from './render';
+import { SelectionActionBar } from './SelectionActionBar';
 
-export function StreamMarkdown(props: StreamMarkdownProps) {
+export function LLMMarkdown(props: LLMMarkdownProps) {
   const {
     text,
     streaming = true,
@@ -22,11 +24,17 @@ export function StreamMarkdown(props: StreamMarkdownProps) {
     card,
     theme,
     direction = 'auto',
+    textSelection,
   } = props;
 
   const mergedTheme = useMemo(() => mergeTheme(defaultTheme, theme), [theme]);
+  const normalizedSelection = useMemo(
+    () => normalizeTextSelection(textSelection),
+    [textSelection]
+  );
 
-  const { tree } = useStreamMarkdown(text, { streaming, direction });
+  const { tree } = useLLMMarkdown(text, { streaming, direction });
+  const rootRef = useRef<HTMLDivElement>(null);
 
   const ctxValue = useMemo<RendererContextValue>(
     () => {
@@ -35,40 +43,56 @@ export function StreamMarkdown(props: StreamMarkdownProps) {
         directives: directives ?? {},
         theme: mergedTheme,
         direction,
+        textSelection: normalizedSelection,
       };
       if (props.onHeadingInView) base.onHeadingInView = props.onHeadingInView;
       return base;
     },
-    [components, directives, mergedTheme, direction, props.onHeadingInView]
+    [components, directives, mergedTheme, direction, normalizedSelection, props.onHeadingInView]
   );
 
   return (
     <RendererContext.Provider value={ctxValue}>
-      <Card
-        theme={mergedTheme}
-        direction={direction}
-        {...(card ? { config: card } : {})}
-        {...(header ? { header } : {})}
-        {...(before ? { before } : {})}
-        {...(after ? { after } : {})}
-        {...(footer ? { footer } : {})}
+      <div
+        ref={rootRef}
+        style={{
+          position: 'relative',
+          userSelect: normalizedSelection.enabled ? 'text' : undefined,
+          WebkitUserSelect: normalizedSelection.enabled ? 'text' : undefined,
+        }}
       >
-        <RenderNode node={tree} />
-      </Card>
+        <Card
+          theme={mergedTheme}
+          direction={direction}
+          {...(card ? { config: card } : {})}
+          {...(header ? { header } : {})}
+          {...(before ? { before } : {})}
+          {...(after ? { after } : {})}
+          {...(footer ? { footer } : {})}
+        >
+          <RenderNode node={tree} />
+        </Card>
+        {normalizedSelection.enabled ? (
+          <SelectionActionBar config={normalizedSelection} rootRef={rootRef} theme={mergedTheme} />
+        ) : null}
+      </div>
     </RendererContext.Provider>
   );
 }
 
 export { defaultTheme, darkTheme } from '../core/registry/theme';
-export { useStreamMarkdown } from '../core/hooks/useStreamMarkdown';
+export { useLLMMarkdown } from '../core/hooks/useLLMMarkdown';
 export type {
-  StreamMarkdownProps,
+  LLMMarkdownProps,
   ComponentOverrides,
   DirectiveRegistry,
   DirectiveComponentProps,
   NodeRendererProps,
   CardConfig,
   CardAnimationPreset,
+  TextSelection,
+  TextSelectionConfig,
+  TextSelectionAction,
   Theme,
   Direction,
   BlockNode,

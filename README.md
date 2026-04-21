@@ -5,9 +5,9 @@
 One package, two platforms, every visual fully overridable. Optimized for the streaming case that breaks most markdown renderers: partial tokens, unclosed blocks, mixed RTL/LTR content, and inline custom widgets like charts and canvases.
 
 ```tsx
-import { StreamMarkdown } from 'llm-markdown/web'; // or 'llm-markdown/native'
+import { LLMMarkdown } from 'llm-markdown/web'; // or 'llm-markdown/native'
 
-<StreamMarkdown
+<LLMMarkdown
   text={aiStreamingText}
   streaming
   directives={{ chart: MyChart, callout: MyCallout }}
@@ -51,11 +51,11 @@ Supported React versions: `18.x` and `19.x`.
 ### Web
 
 ```tsx
-import { StreamMarkdown } from 'llm-markdown/web';
+import { LLMMarkdown } from 'llm-markdown/web';
 
 export function Message({ text }: { text: string }) {
   return (
-    <StreamMarkdown
+    <LLMMarkdown
       text={text}
       streaming
       card={{ animation: 'fadeSlide', layoutAnimation: true }}
@@ -68,11 +68,11 @@ export function Message({ text }: { text: string }) {
 ### React Native
 
 ```tsx
-import { StreamMarkdown } from 'llm-markdown/native';
+import { LLMMarkdown } from 'llm-markdown/native';
 
 export function Message({ text }: { text: string }) {
   return (
-    <StreamMarkdown
+    <LLMMarkdown
       text={text}
       streaming
       card={{ animation: 'fadeSlide', layoutAnimation: true }}

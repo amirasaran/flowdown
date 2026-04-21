@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StreamMarkdown, darkTheme } from 'llm-markdown/native';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/native';
 import type { DirectiveRegistry } from 'llm-markdown/native';
 import { presets } from '../shared/demo-content';
 import { Chart } from './directives/Chart';
@@ -145,12 +145,13 @@ export function Playground({ onOpenChat }: { onOpenChat: () => void }) {
           </View>
         </View>
 
-        <StreamMarkdown
+        <LLMMarkdown
           text={text}
           streaming={streaming}
           directives={directives}
           theme={settings.dark ? darkTheme : undefined}
           direction={settings.direction}
+          textSelection
           card={{ animation: settings.animation, layoutAnimation: settings.layoutAnimation }}
           header={
             settings.showHeader ? (

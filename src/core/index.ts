@@ -6,4 +6,4 @@ export * from './parser/diff';
 export * from './bidi/detect';
 export * from './registry/theme';
 export * from './registry/componentRegistry';
-export * from './hooks/useStreamMarkdown';
+export * from './hooks/useLLMMarkdown';

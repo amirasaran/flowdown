@@ -1,6 +1,6 @@
 /**
  * The full in-app documentation, written as markdown. Rendered by
- * StreamMarkdown itself — the library renders its own docs.
+ * LLMMarkdown itself — the library renders its own docs.
  */
 export const docsMarkdown = `# llm-markdown
 
@@ -32,20 +32,20 @@ The library is a single package with platform-specific exports — you import fr
 ## Quick start — web
 
 \`\`\`tsx
-import { StreamMarkdown } from 'llm-markdown/web';
+import { LLMMarkdown } from 'llm-markdown/web';
 
 export function AssistantMessage({ text }: { text: string }) {
-  return <StreamMarkdown text={text} streaming direction="auto" />;
+  return <LLMMarkdown text={text} streaming direction="auto" />;
 }
 \`\`\`
 
 ## Quick start — React Native
 
 \`\`\`tsx
-import { StreamMarkdown } from 'llm-markdown/native';
+import { LLMMarkdown } from 'llm-markdown/native';
 
 export function AssistantMessage({ text }: { text: string }) {
-  return <StreamMarkdown text={text} streaming direction="auto" />;
+  return <LLMMarkdown text={text} streaming direction="auto" />;
 }
 \`\`\`
 
@@ -53,10 +53,10 @@ The two platforms accept the exact same props.
 
 ---
 
-## Full \`StreamMarkdown\` props reference
+## Full \`LLMMarkdown\` props reference
 
 \`\`\`ts
-interface StreamMarkdownProps {
+interface LLMMarkdownProps {
   text: string;                              // required; the markdown source
   streaming?: boolean;                       // default true
   components?: ComponentOverrides;           // per-node-type renderer overrides
@@ -81,9 +81,9 @@ interface StreamMarkdownProps {
 The theme object deep-merges over the shipped \`defaultTheme\` / \`darkTheme\`. You only override what you care about:
 
 \`\`\`tsx
-import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
 
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   theme={{
     colors: {
@@ -127,9 +127,9 @@ interface Theme {
 ### Dark mode
 
 \`\`\`tsx
-import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
 
-<StreamMarkdown text={text} theme={darkTheme} />;
+<LLMMarkdown text={text} theme={darkTheme} />;
 \`\`\`
 
 Both \`defaultTheme\` and \`darkTheme\` are plain objects — you can import, clone, tweak, and pass. Or derive a custom palette:
@@ -181,7 +181,7 @@ const MyLink = React.memo(
   (a, b) => a.node.id === b.node.id && a.theme === b.theme
 );
 
-<StreamMarkdown text={text} components={{ link: MyLink }} />;
+<LLMMarkdown text={text} components={{ link: MyLink }} />;
 \`\`\`
 
 ### Every overridable key
@@ -217,7 +217,7 @@ Two levers, from simple to full control.
 For just changing colors and font:
 
 \`\`\`tsx
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   theme={{
     colors: {
@@ -299,7 +299,7 @@ const MyCode = React.memo(
   (a, b) => a.node.id === b.node.id && a.theme === b.theme
 );
 
-<StreamMarkdown text={text} components={{ code: MyCode }} />;
+<LLMMarkdown text={text} components={{ code: MyCode }} />;
 \`\`\`
 
 **Note:** \`inlineCode\` is a **separate node type**. If you only override \`code\`, inline backticks keep the default style. Override \`inlineCode\` too if you want both to match.
@@ -359,7 +359,7 @@ function Callout({ attributes, children, theme }: DirectiveComponentProps) {
   );
 }
 
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   directives={{ chart: Chart, callout: Callout }}
 />;
@@ -394,9 +394,9 @@ The library scans each block-level node's text and tags it with \`dir: 'ltr' | '
 ### The \`direction\` prop
 
 \`\`\`tsx
-<StreamMarkdown text={text} direction="auto" />   // default: per-block detection
-<StreamMarkdown text={text} direction="ltr"  />   // force whole document LTR
-<StreamMarkdown text={text} direction="rtl"  />   // force whole document RTL
+<LLMMarkdown text={text} direction="auto" />   // default: per-block detection
+<LLMMarkdown text={text} direction="ltr"  />   // force whole document LTR
+<LLMMarkdown text={text} direction="rtl"  />   // force whole document RTL
 \`\`\`
 
 ### What the default renderers do
@@ -437,7 +437,7 @@ Any table wider than its container is wrapped in a horizontal scroll region auto
 React Native's Yoga doesn't have HTML's table layout algorithm, so the library sizes columns explicitly. The per-column target is exposed as a theme token:
 
 \`\`\`tsx
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   theme={{ layout: { tableColumnWidth: 180 } }}  // roomy cells
 />;
@@ -463,7 +463,7 @@ Do **not** debounce upstream for the renderer's sake. Push every chunk:
 
 \`\`\`tsx
 import { useState, useEffect } from 'react';
-import { StreamMarkdown } from 'llm-markdown/web';
+import { LLMMarkdown } from 'llm-markdown/web';
 
 export function StreamedMessage({ prompt }: { prompt: string }) {
   const [text, setText] = useState('');
@@ -487,7 +487,7 @@ export function StreamedMessage({ prompt }: { prompt: string }) {
     return () => { cancelled = true; };
   }, [prompt]);
 
-  return <StreamMarkdown text={text} streaming={!done} />;
+  return <LLMMarkdown text={text} streaming={!done} />;
 }
 \`\`\`
 
@@ -496,10 +496,10 @@ export function StreamedMessage({ prompt }: { prompt: string }) {
 When you want the AST without the default card:
 
 \`\`\`tsx
-import { useStreamMarkdown } from 'llm-markdown/web';
+import { useLLMMarkdown } from 'llm-markdown/web';
 
 function Raw({ text }: { text: string }) {
-  const { tree } = useStreamMarkdown(text, {
+  const { tree } = useLLMMarkdown(text, {
     streaming: true,
     direction: 'auto',
   });
@@ -511,10 +511,10 @@ function Raw({ text }: { text: string }) {
 
 ## Slots around the content
 
-The \`StreamMarkdown\` card has four optional slots:
+The \`LLMMarkdown\` card has four optional slots:
 
 \`\`\`tsx
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   header={<div>Thread · April 2026</div>}
   before={<RoleBadge role="assistant" />}
@@ -536,7 +536,7 @@ Slot order inside the card, top to bottom:
 ## Card visuals + animations
 
 \`\`\`tsx
-<StreamMarkdown
+<LLMMarkdown
   text={text}
   card={{
     animation: 'fadeSlide',        // 'none'|'fade'|'fadeSlide'|'scale'|'typewriter'
@@ -560,7 +560,7 @@ On React Native, layout animations use Reanimated (optional peer dep); on web th
 - **Every override must be memoized** with a comparator that returns \`true\` when \`a.node.id === b.node.id && a.theme === b.theme\`. Without this, streaming re-renders every node on every tick and drops frames.
 - **Wrap your \`components\` / \`directives\` / \`theme\` props with \`useMemo\`** so the renderer context doesn't churn.
 - **Fresh theme objects trigger a full re-render** — merge once, reuse.
-- **For chat lists**, mount one \`<StreamMarkdown>\` per message and let a \`FlatList\` / \`FlashList\` virtualize the list.
+- **For chat lists**, mount one \`<LLMMarkdown>\` per message and let a \`FlatList\` / \`FlashList\` virtualize the list.
 
 ---
 
@@ -588,10 +588,10 @@ import {
   diffTrees, directionOf,
   defaultTheme, darkTheme, mergeTheme,
   parseAttributes, OPAQUE_BODY_DIRECTIVES,
-  useStreamMarkdown,
+  useLLMMarkdown,
 
   // types (re-exported)
-  type StreamMarkdownProps, type Theme, type DeepPartial,
+  type LLMMarkdownProps, type Theme, type DeepPartial,
   type ComponentOverrides, type NodeRendererProps,
   type DirectiveRegistry, type DirectiveComponentProps,
   type CardConfig, type CardAnimationPreset,
@@ -604,8 +604,8 @@ import {
 
 \`\`\`ts
 import {
-  StreamMarkdown,
-  useStreamMarkdown,
+  LLMMarkdown,
+  useLLMMarkdown,
   defaultTheme, darkTheme,
   /* all the types above */
 } from 'llm-markdown/web';
@@ -615,8 +615,8 @@ import {
 
 \`\`\`ts
 import {
-  StreamMarkdown,
-  useStreamMarkdown,
+  LLMMarkdown,
+  useLLMMarkdown,
   defaultTheme, darkTheme,
   /* all the types above */
 } from 'llm-markdown/native';

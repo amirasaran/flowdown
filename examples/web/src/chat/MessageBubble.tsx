@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
 import type { DirectiveRegistry } from 'llm-markdown/web';
 import { Chart } from '../directives/Chart';
 import { Callout } from '../directives/Callout';
@@ -92,7 +92,7 @@ export function MessageBubble({
       }}
     >
       <div style={{ maxWidth: width, width: 'fit-content', minWidth: 120 }}>
-        <StreamMarkdown
+        <LLMMarkdown
           text={message.text}
           streaming={!isUser && message.streaming}
           directives={directives}

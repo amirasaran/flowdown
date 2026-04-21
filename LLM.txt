@@ -26,9 +26,9 @@ Do NOT choose it when:
 SECTION 2 — IMPORT PATHS
 ================================================================
 
-import { StreamMarkdown } from 'llm-markdown/web';     // React DOM
-import { StreamMarkdown } from 'llm-markdown/native';  // React Native
-import { useStreamMarkdown, parseMarkdown, assignIds, annotateDirection,
+import { LLMMarkdown } from 'llm-markdown/web';     // React DOM
+import { LLMMarkdown } from 'llm-markdown/native';  // React Native
+import { useLLMMarkdown, parseMarkdown, assignIds, annotateDirection,
          defaultTheme, darkTheme, mergeTheme,
          OPAQUE_BODY_DIRECTIVES, parseAttributes } from 'llm-markdown';
 
@@ -42,7 +42,7 @@ API surface is identical across /web and /native. Prefer the platform-specific e
 SECTION 3 — THE PROP CONTRACT (COPY-PASTE REFERENCE)
 ================================================================
 
-interface StreamMarkdownProps {
+interface LLMMarkdownProps {
   text: string;                                    // required; the markdown source
   streaming?: boolean;                             // default true; tolerate partial/unclosed blocks
   components?: ComponentOverrides;                 // per-node-type renderer overrides
@@ -59,7 +59,33 @@ interface StreamMarkdownProps {
   virtualize?: boolean;                            // native only, experimental
   onHeadingInView?: (id, depth, text) => void;
   onDirectiveRender?: (node) => ReactNode | null | undefined;
+  textSelection?: boolean | TextSelectionConfig;   // see below
 }
+
+interface TextSelectionConfig {
+  enabled: boolean;
+  actions?: Array<{ label: string; onPress: (selectedText: string) => void }>;
+  onSelect?: (selectedText: string) => void;       // '' when selection clears
+}
+
+// Text selection details:
+// - `textSelection={true}` enables the OS default selection menu (Copy, Select All,
+//   Look Up on iOS, etc.) across the whole card on both native and web.
+// - On WEB, custom `actions` render in a floating action bar anchored above the
+//   selection. Works for any content.
+// - On NATIVE:
+//   - Plain-text blocks (code, plain paragraphs/headings, plain table cells) are
+//     rendered via <TextInput editable={false}> under the hood so the iOS blue
+//     selection highlight + handles actually appear. This works around a
+//     well-known RN Fabric bug in <Text selectable> where the menu shows but the
+//     highlight never renders.
+//   - Rich paragraphs (with bold/italic/link/inline-code children) remain as
+//     <Text selectable>. Copy and the system menu still work; the blue highlight
+//     is missing due to the Fabric bug upstream. No workaround without losing
+//     formatting — this is a known limitation.
+//   - Custom `actions` only apply to plain-text blocks via optional peer
+//     `react-native-selectable-text`. Without it, `actions` falls back silently
+//     to the system menu and a dev warning fires once.
 
 interface CardConfig {
   animation?: 'none' | 'fade' | 'fadeSlide' | 'scale' | 'typewriter';  // default 'fadeSlide'
@@ -91,23 +117,23 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
 
 4.1 — Basic streaming message (web)
 
-  import { StreamMarkdown } from 'llm-markdown/web';
+  import { LLMMarkdown } from 'llm-markdown/web';
 
   export function Msg({ text }: { text: string }) {
-    return <StreamMarkdown text={text} streaming direction="auto" />;
+    return <LLMMarkdown text={text} streaming direction="auto" />;
   }
 
 4.2 — Basic streaming message (React Native)
 
-  import { StreamMarkdown } from 'llm-markdown/native';
+  import { LLMMarkdown } from 'llm-markdown/native';
 
   export function Msg({ text }: { text: string }) {
-    return <StreamMarkdown text={text} streaming direction="auto" />;
+    return <LLMMarkdown text={text} streaming direction="auto" />;
   }
 
 4.3 — With directives + slots + dark theme
 
-  import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+  import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
   import type { DirectiveComponentProps } from 'llm-markdown/web';
 
   function Chart({ attributes, value, theme }: DirectiveComponentProps) {
@@ -115,7 +141,7 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
     return <YourBarChart data={data} title={attributes.title as string} />;
   }
 
-  <StreamMarkdown
+  <LLMMarkdown
     text={text}
     streaming
     theme={darkTheme}
@@ -139,14 +165,14 @@ SECTION 4 — MINIMAL EXAMPLES (READY TO COPY)
     (a, b) => a.node.id === b.node.id && a.theme === b.theme
   );
 
-  <StreamMarkdown text={text} components={{ code: MyCode }} />;
+  <LLMMarkdown text={text} components={{ code: MyCode }} />;
 
 4.5 — Use the hook directly (no card)
 
-  import { useStreamMarkdown } from 'llm-markdown/web';
+  import { useLLMMarkdown } from 'llm-markdown/web';
 
   function Raw({ text }: { text: string }) {
-    const { tree } = useStreamMarkdown(text, { streaming: true, direction: 'auto' });
+    const { tree } = useLLMMarkdown(text, { streaming: true, direction: 'auto' });
     return <pre>{JSON.stringify(tree, null, 2)}</pre>;
   }
 
@@ -268,7 +294,7 @@ SECTION 9 — PERFORMANCE CONTRACT
 - Do NOT inline the `components` / `directives` / `theme` objects in JSX every render;
   prefer `useMemo` so the context value is referentially stable.
 - Fresh theme objects trigger a full re-render of the message. Merge once, reuse.
-- For chat lists with many messages, mount one `<StreamMarkdown>` per message (the
+- For chat lists with many messages, mount one `<LLMMarkdown>` per message (the
   library is not a list virtualizer). Use FlashList / FlatList for the list itself.
 - Native `virtualize={true}` is experimental and virtualizes block nodes INSIDE a
   single message. Only opt in for genuinely huge single messages (200+ blocks).
@@ -291,15 +317,15 @@ SECTION 10 — ANTI-PATTERNS (DO NOT DO THESE)
          and autolinks.
   DO:    render untrusted HTML through a sanitizer in your custom `html` override.
 
-- DON'T: split the stream into sentences and render each in a separate `<StreamMarkdown>`.
+- DON'T: split the stream into sentences and render each in a separate `<LLMMarkdown>`.
          You lose streaming animation and directive context.
-  DO:    render the full growing string in a single `<StreamMarkdown>` instance.
+  DO:    render the full growing string in a single `<LLMMarkdown>` instance.
 
 - DON'T: swap between `streaming={false}` and `streaming={true}` mid-stream to "reset".
   DO:    keep `streaming={true}` until the upstream signals end, then flip once to `false`.
 
 - DON'T: construct and throw away parsed trees yourself for diffing purposes.
-  DO:    use `useStreamMarkdown(text)` — it caches and memoizes for you.
+  DO:    use `useLLMMarkdown(text)` — it caches and memoizes for you.
 
 ================================================================
 SECTION 11 — SYSTEM PROMPT SNIPPET (FOR AGENTS THAT EMIT MARKDOWN TO THIS RENDERER)
@@ -349,7 +375,7 @@ SECTION 12 — COMMON RECIPES
 
 12.3 — Render a table of contents from headings
 
-  <StreamMarkdown
+  <LLMMarkdown
     text={text}
     onHeadingInView={(id, depth, text) => setActiveHeading({ id, depth, text })}
   />
@@ -362,7 +388,7 @@ SECTION 12 — COMMON RECIPES
 
   import { parseMarkdown, assignIds, annotateDirection } from 'llm-markdown';
   const tree = annotateDirection(assignIds(parseMarkdown(source)));
-  // Ship `tree` to the client; rehydrate with `useStreamMarkdown` or render manually.
+  // Ship `tree` to the client; rehydrate with `useLLMMarkdown` or render manually.
 
 ================================================================
 SECTION 13 — DEBUGGING CHECKLIST
@@ -406,21 +432,21 @@ src/
     parser/ast.ts                — AST node types + id/hash helpers
     parser/tokenizer.ts          — block + inline parser
     parser/directives.ts         — directive regex + attribute parser + opaque-set
-    parser/incremental.ts        — useStreamMarkdown's parse cache
+    parser/incremental.ts        — useLLMMarkdown's parse cache
     parser/diff.ts               — AST patch list (debug/telemetry)
     bidi/detect.ts               — first-strong-char direction detection
     registry/componentRegistry.ts— React context for overrides/directives/theme
     registry/theme.ts            — defaultTheme, darkTheme, mergeTheme
-    hooks/useStreamMarkdown.ts   — public hook
+    hooks/useLLMMarkdown.ts   — public hook
   web/
-    index.tsx                    — StreamMarkdown for web, exports
+    index.tsx                    — LLMMarkdown for web, exports
     Card.tsx                     — card wrapper with CSS animations
     render.tsx                   — recursive renderer for web
     components/defaults.tsx      — web default node renderers (memoized)
     scroll/HScroll.tsx           — overflow-x scroll wrapper
     animations.ts                — CSS animation keyframes per preset
   native/
-    index.tsx                    — StreamMarkdown for RN, exports
+    index.tsx                    — LLMMarkdown for RN, exports
     Card.tsx                     — card wrapper with Reanimated
     render.tsx                   — recursive renderer for RN
     components/defaults.tsx      — RN default node renderers

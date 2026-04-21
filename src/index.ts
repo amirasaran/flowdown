@@ -1,6 +1,6 @@
 export * from './core';
 export type {
-  StreamMarkdownProps,
+  LLMMarkdownProps,
   ComponentOverrides,
   DirectiveRegistry,
   DirectiveComponentProps,

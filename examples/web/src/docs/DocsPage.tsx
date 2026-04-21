@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { StreamMarkdown, darkTheme } from 'llm-markdown/web';
+import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
 import type { ComponentOverrides, DirectiveRegistry } from 'llm-markdown/web';
 import { MOBILE_QUERY, useMediaQuery } from '../useMediaQuery';
 import { Drawer } from '../components/Drawer';
@@ -145,7 +145,7 @@ export function DocsPage({ onNavigate }: { onNavigate: (r: Route) => void }) {
             overflow: 'hidden',
           }}
         >
-          <StreamMarkdown
+          <LLMMarkdown
             text={docsMarkdown}
             streaming={false}
             components={components}

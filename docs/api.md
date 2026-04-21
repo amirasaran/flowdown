@@ -2,18 +2,18 @@
 
 All public exports. The API is identical on web and native unless marked otherwise.
 
-## `StreamMarkdown`
+## `LLMMarkdown`
 
 ```ts
-import { StreamMarkdown } from 'llm-markdown/web';
+import { LLMMarkdown } from 'llm-markdown/web';
 // or
-import { StreamMarkdown } from 'llm-markdown/native';
+import { LLMMarkdown } from 'llm-markdown/native';
 ```
 
 ### Props
 
 ```ts
-interface StreamMarkdownProps {
+interface LLMMarkdownProps {
   text: string;
   streaming?: boolean;                   // default true
   components?: ComponentOverrides;
@@ -61,12 +61,12 @@ interface CardConfig {
 }
 ```
 
-## `useStreamMarkdown`
+## `useLLMMarkdown`
 
 ```ts
-import { useStreamMarkdown } from 'llm-markdown/web';
+import { useLLMMarkdown } from 'llm-markdown/web';
 
-const { tree } = useStreamMarkdown(text, {
+const { tree } = useLLMMarkdown(text, {
   streaming: true,
   direction: 'auto',
 });
@@ -196,5 +196,5 @@ Use these if you need to build a renderer pipeline outside React (e.g. server-si
 | ---------------------------- | ------------------------------------------------------------- |
 | `llm-markdown`            | core AST + hook + types (no React components)                 |
 | `llm-markdown/core`       | same as above (explicit alias)                                |
-| `llm-markdown/web`        | `StreamMarkdown` using React DOM primitives + web defaults    |
-| `llm-markdown/native`     | `StreamMarkdown` using React Native primitives + RN defaults  |
+| `llm-markdown/web`        | `LLMMarkdown` using React DOM primitives + web defaults    |
+| `llm-markdown/native`     | `LLMMarkdown` using React Native primitives + RN defaults  |

@@ -66,21 +66,23 @@
     "react-dom": ">=18.0.0",
     "react-native": ">=0.72.0",
     "react-native-reanimated": ">=3.0.0",
+    "react-native-selectable-text": ">=1.0.0",
     "framer-motion": ">=11.0.0"
   },
   "peerDependenciesMeta": {
     "react-dom": { "optional": true },
     "react-native": { "optional": true },
     "react-native-reanimated": { "optional": true },
+    "react-native-selectable-text": { "optional": true },
     "framer-motion": { "optional": true }
   },
   "dependencies": {},
   "devDependencies": {
     "@changesets/cli": "^2.27.0",
-    "@types/react": "^18.3.0",
-    "@types/react-dom": "^18.3.0",
-    "react": "^18.3.0",
-    "react-dom": "^18.3.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "tsup": "^8.3.0",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
