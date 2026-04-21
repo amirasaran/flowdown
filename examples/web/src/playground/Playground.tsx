@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { LLMMarkdown, darkTheme } from 'llm-markdown/web';
 import type {
+  BlockSlots,
   CardAnimationPreset,
   DirectiveRegistry,
   Direction,
+  TextSelectionConfig,
 } from 'llm-markdown/web';
 import { presets } from '../../../shared/demo-content';
 import { Chart } from '../directives/Chart';
@@ -70,6 +72,73 @@ export function Playground({
 
   const directives: DirectiveRegistry = useMemo(
     () => ({ chart: Chart, callout: Callout }),
+    []
+  );
+
+  // Demo wiring: selection gets a custom action bar on web (Copy + Ask AI).
+  const textSelection: TextSelectionConfig = useMemo(
+    () => ({
+      enabled: true,
+      actions: [
+        {
+          label: 'Copy',
+          onPress: (t) => void navigator.clipboard.writeText(t),
+        },
+        {
+          label: 'Ask AI',
+          onPress: (t) => window.alert(`Ask AI about:\n\n${t.slice(0, 120)}${t.length > 120 ? '…' : ''}`),
+        },
+      ],
+    }),
+    []
+  );
+
+  // Demo wiring: per-block toolbars for code, table, image.
+  const blockSlots: BlockSlots = useMemo(
+    () => ({
+      code: {
+        actions: [
+          {
+            label: 'Copy',
+            onPress: (node) => void navigator.clipboard.writeText(node.value),
+          },
+          {
+            label: 'Run',
+            onPress: (node) =>
+              window.alert(`Would execute ${node.lang ?? 'code'}:\n\n${node.value}`),
+          },
+        ],
+      },
+      table: {
+        actions: [
+          {
+            label: 'Copy as CSV',
+            onPress: (node) => {
+              const csv = node.children
+                .map((row) =>
+                  row.children
+                    .map((cell) =>
+                      cell.children
+                        .map((c) => ('value' in c ? (c as { value: string }).value : ''))
+                        .join('')
+                    )
+                    .join(',')
+                )
+                .join('\n');
+              void navigator.clipboard.writeText(csv);
+            },
+          },
+        ],
+      },
+      image: {
+        actions: [
+          {
+            label: 'Open',
+            onPress: (node) => window.open(node.url, '_blank'),
+          },
+        ],
+      },
+    }),
     []
   );
 
@@ -368,6 +437,8 @@ export function Playground({
             text={text}
             streaming={streaming}
             directives={directives}
+            textSelection={textSelection}
+            blockSlots={blockSlots}
             theme={{
               ...(dark ? darkTheme : {}),
               typography: { fontFamily: FONT_STACK, monoFamily: MONO_STACK },

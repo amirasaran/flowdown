@@ -60,7 +60,28 @@ interface LLMMarkdownProps {
   onHeadingInView?: (id, depth, text) => void;
   onDirectiveRender?: (node) => ReactNode | null | undefined;
   textSelection?: boolean | TextSelectionConfig;   // see below
+  blockSlots?: BlockSlots;                         // see below
 }
+
+interface BlockSlots {
+  code?:  { before?, after?, actions?: BlockAction<CodeNode>[] };
+  table?: { before?, after?, actions?: BlockAction<TableNode>[] };
+  image?: { before?, after?, actions?: BlockAction<ImageNode>[] };
+}
+
+interface BlockAction<N> {
+  label: string;
+  onPress: (node: N) => void;
+}
+
+// Block slots details:
+// - `before(node)` / `after(node)` — return any ReactNode rendered above /
+//   below the block. Use this for custom UI.
+// - `actions` — shortcut that renders a pill toolbar below the block, themed
+//   via the card's Theme. One button per action. Use this for the common
+//   "Copy / Run / Export" case.
+// - Currently exposed for code, table, and image. Other block types can be
+//   customized via the existing `components` override map.
 
 interface TextSelectionConfig {
   enabled: boolean;

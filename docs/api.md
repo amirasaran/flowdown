@@ -26,6 +26,8 @@ interface LLMMarkdownProps {
   theme?: DeepPartial<Theme>;
   direction?: 'auto' | 'ltr' | 'rtl';    // default 'auto'
   virtualize?: boolean;                  // native only, experimental
+  textSelection?: boolean | TextSelectionConfig;
+  blockSlots?: BlockSlots;
   onHeadingInView?: (id: string, depth: number, text: string) => void;
   onDirectiveRender?: (node: DirectiveNode) => ReactNode | null | undefined;
 }
@@ -43,8 +45,78 @@ interface LLMMarkdownProps {
 | `theme`             | Partial theme merged over the default.                                                            |
 | `direction`         | `'auto'` (default) uses per-block detection; `'ltr'` / `'rtl'` force the entire document.         |
 | `virtualize`        | (Native only, experimental) If `true`, uses a virtualized list for block nodes > 80.              |
+| `textSelection`     | Enable text selection + optional custom action menu. See below.                                   |
+| `blockSlots`        | Per-block-type slots (before / after / actions toolbar). See below.                               |
 | `onHeadingInView`   | Fires when a heading is visible; useful for TOCs.                                                 |
 | `onDirectiveRender` | Intercept directive rendering; return a `ReactNode` to replace, `null`/`undefined` to let it run. |
+
+### `textSelection`
+
+```ts
+type TextSelection = boolean | TextSelectionConfig;
+
+interface TextSelectionConfig {
+  enabled: boolean;
+  actions?: Array<{ label: string; onPress: (selectedText: string) => void }>;
+  onSelect?: (selectedText: string) => void;   // '' when selection clears
+}
+```
+
+`textSelection={true}` is sugar for `{ enabled: true }`.
+
+- **Web**: enables `user-select: text` on the card and, when `actions` are supplied, renders a floating pill toolbar anchored above the active browser selection. Works on any content.
+- **Native**: consecutive text-like blocks (paragraph / heading / hr / list) render inside a single `<TextInput editable={false} multiline>` so iOS `UITextView` shows a continuous selection across them — same approach ChatGPT uses. Non-text blocks (code, table, blockquote, image, directive) intentionally break the selection range.
+- Custom `actions` on native only reach plain-text code blocks via the optional peer `react-native-selectable-text`. Rich paragraphs fall back to the system menu and emit a one-shot dev warning.
+
+### `blockSlots`
+
+Per-block-type UI hooks around specific block renderers.
+
+```ts
+interface BlockSlots {
+  code?:  BlockSlot<CodeNode>;
+  table?: BlockSlot<TableNode>;
+  image?: BlockSlot<ImageNode>;
+}
+
+interface BlockSlot<N> {
+  before?: (node: N) => ReactNode;
+  after?:  (node: N) => ReactNode;
+  actions?: BlockAction<N>[];
+}
+
+interface BlockAction<N> {
+  label: string;
+  onPress: (node: N) => void;   // receives the full AST node
+}
+```
+
+- `before` / `after` — custom ReactNode above / below the block. Full layout control.
+- `actions` — shortcut: library renders a themed pill toolbar (one button per action) below the block.
+- The `onPress` callback receives the typed AST node, so the handler has full access to the block's content: `code` → `{ value, lang }`, `table` → `{ children, align }`, `image` → `{ url, alt, title }`.
+
+Example:
+
+```tsx
+<LLMMarkdown
+  text={text}
+  blockSlots={{
+    code: {
+      actions: [
+        { label: 'Copy', onPress: (n) => navigator.clipboard.writeText(n.value) },
+        { label: 'Run',  onPress: (n) => execute(n.lang, n.value) },
+      ],
+    },
+    table: {
+      actions: [
+        { label: 'Export CSV', onPress: (n) => downloadCSV(tableToCSV(n)) },
+      ],
+    },
+  }}
+/>
+```
+
+For block types not yet in `BlockSlots` (paragraph, heading, blockquote, list, etc.), use the `components` override map instead.
 
 ### `CardConfig`
 

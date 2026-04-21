@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import type {
+  BlockSlots,
   ComponentOverrides,
   DirectiveRegistry,
   TextSelectionConfig,
@@ -14,6 +15,7 @@ export interface RendererContextValue {
   theme: Theme;
   direction: 'auto' | 'ltr' | 'rtl';
   textSelection: TextSelectionConfig;
+  blockSlots: BlockSlots;
   onHeadingInView?: (id: string, depth: number, text: string) => void;
 }
 
@@ -23,6 +25,7 @@ export const RendererContext = createContext<RendererContextValue>({
   theme: defaultTheme,
   direction: 'auto',
   textSelection: DISABLED_TEXT_SELECTION,
+  blockSlots: {},
 });
 
 export function useRenderer(): RendererContextValue {

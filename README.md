@@ -13,6 +13,17 @@ import { LLMMarkdown } from 'llm-markdown/web'; // or 'llm-markdown/native'
   directives={{ chart: MyChart, callout: MyCallout }}
   direction="auto"
   card={{ animation: 'fadeSlide', layoutAnimation: true }}
+  textSelection={{
+    enabled: true,
+    actions: [{ label: 'Ask AI', onPress: (t) => askAI(t) }],
+  }}
+  blockSlots={{
+    code: {
+      actions: [
+        { label: 'Copy', onPress: (n) => navigator.clipboard.writeText(n.value) },
+      ],
+    },
+  }}
 />
 ```
 
@@ -96,6 +107,8 @@ The API surface is identical across platforms.
 - ✅ **Horizontal scroll** for wide tables and long code lines
 - ✅ **Card wrapper** with presets (`fade`, `fadeSlide`, `scale`, `typewriter`, `none`) + layout animations
 - ✅ **Slots** — `header`, `before`, `after`, `footer` around the content
+- ✅ **Text selection** — system menu + optional custom actions ("Copy", "Ask AI"), continuous selection across text blocks on native (ChatGPT-style)
+- ✅ **Per-block toolbars** — `blockSlots` with Copy / Run / Export for code, tables, images
 - ✅ **Theme tokens** — colors, spacing, radii, typography, motion
 - ✅ **Error-bounded directives** — one broken chart does not blank the message
 - ✅ **Zero runtime deps** (core); React Native animations use the peer `react-native-reanimated` if present

@@ -1,14 +1,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Alert,
   Pressable,
   ScrollView,
+  Share,
   Text,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LLMMarkdown, darkTheme } from 'llm-markdown/native';
-import type { DirectiveRegistry } from 'llm-markdown/native';
+import type { BlockSlots, DirectiveRegistry } from 'llm-markdown/native';
 import { presets } from '../shared/demo-content';
 import { Chart } from './directives/Chart';
 import { Callout } from './directives/Callout';
@@ -56,6 +58,46 @@ export function Playground({ onOpenChat }: { onOpenChat: () => void }) {
 
   const directives: DirectiveRegistry = useMemo(
     () => ({ chart: Chart, callout: Callout }),
+    []
+  );
+
+  // Demo: per-block toolbars. Using Alert / Share for demo output since
+  // we're not pulling in @react-native-clipboard/clipboard.
+  const blockSlots: BlockSlots = useMemo(
+    () => ({
+      code: {
+        actions: [
+          { label: 'Copy', onPress: (node) => Alert.alert('Copied code', node.value) },
+          { label: 'Run', onPress: (node) => Alert.alert(`Run ${node.lang ?? 'code'}`, node.value) },
+        ],
+      },
+      table: {
+        actions: [
+          {
+            label: 'Export CSV',
+            onPress: (node) => {
+              const csv = node.children
+                .map((row) =>
+                  row.children
+                    .map((cell) =>
+                      cell.children
+                        .map((c) => ('value' in c ? String((c as { value: unknown }).value) : ''))
+                        .join('')
+                    )
+                    .join(',')
+                )
+                .join('\n');
+              void Share.share({ message: csv });
+            },
+          },
+        ],
+      },
+      image: {
+        actions: [
+          { label: 'Open', onPress: (node) => void Share.share({ url: node.url, message: node.url }) },
+        ],
+      },
+    }),
     []
   );
 
@@ -152,6 +194,7 @@ export function Playground({ onOpenChat }: { onOpenChat: () => void }) {
           theme={settings.dark ? darkTheme : undefined}
           direction={settings.direction}
           textSelection
+          blockSlots={blockSlots}
           card={{ animation: settings.animation, layoutAnimation: settings.layoutAnimation }}
           header={
             settings.showHeader ? (

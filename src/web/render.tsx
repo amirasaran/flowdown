@@ -6,7 +6,13 @@ import type {
   RootNode,
   DirectiveNode,
 } from '../core/parser/ast';
-import type { DirectiveComponentProps, NodeRendererProps } from '../shared/types';
+import type {
+  BlockSlots,
+  BlockSlot as BlockSlotT,
+  DirectiveComponentProps,
+  NodeRendererProps,
+  Theme,
+} from '../shared/types';
 import { useRenderer } from '../core/registry/componentRegistry';
 import * as D from './components/defaults';
 
@@ -49,10 +55,75 @@ export function RenderNode({ node }: { node: AnyNode }): ReactNode {
 
   const Comp = Override ?? Default;
   if (!Comp) return null;
-  return (
+  const rendered = (
     <Comp node={node} theme={theme}>
       {inner}
     </Comp>
+  );
+  return applyBlockSlots(node, rendered, ctx.blockSlots, theme);
+}
+
+function applyBlockSlots(
+  node: AnyNode,
+  rendered: ReactNode,
+  slots: BlockSlots,
+  theme: Theme
+): ReactNode {
+  const slot = (slots as Record<string, BlockSlotT<AnyNode> | undefined>)[node.type];
+  if (!slot) return rendered;
+  const hasBefore = !!slot.before;
+  const hasAfter = !!slot.after;
+  const hasActions = !!slot.actions && slot.actions.length > 0;
+  if (!hasBefore && !hasAfter && !hasActions) return rendered;
+  return (
+    <div>
+      {hasBefore ? slot.before!(node) : null}
+      {rendered}
+      {hasAfter ? slot.after!(node) : null}
+      {hasActions ? <BlockActionBar actions={slot.actions!} node={node} theme={theme} /> : null}
+    </div>
+  );
+}
+
+function BlockActionBar({
+  actions,
+  node,
+  theme,
+}: {
+  actions: { label: string; onPress: (node: AnyNode) => void }[];
+  node: AnyNode;
+  theme: Theme;
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        gap: theme.spacing.sm,
+        marginTop: theme.spacing.sm,
+        flexWrap: 'wrap',
+      }}
+    >
+      {actions.map((a, i) => (
+        <button
+          key={`${a.label}-${i}`}
+          type="button"
+          onClick={() => a.onPress(node)}
+          style={{
+            padding: `${theme.spacing.sm}px ${theme.spacing.md}px`,
+            borderRadius: theme.radii.md,
+            background: theme.colors.surface,
+            border: `1px solid ${theme.colors.border}`,
+            color: theme.colors.text,
+            fontSize: theme.typography.sizeSmall,
+            fontWeight: 500,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          {a.label}
+        </button>
+      ))}
+    </div>
   );
 }
 

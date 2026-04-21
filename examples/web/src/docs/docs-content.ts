@@ -69,10 +69,72 @@ interface LLMMarkdownProps {
   theme?: DeepPartial<Theme>;                // merged over defaults
   direction?: 'auto' | 'ltr' | 'rtl';        // default 'auto' (per-block)
   virtualize?: boolean;                      // native only, experimental
+  textSelection?: boolean | TextSelectionConfig;
+  blockSlots?: BlockSlots;
   onHeadingInView?: (id, depth, text) => void;
   onDirectiveRender?: (node) => ReactNode | null | undefined;
 }
 \`\`\`
+
+---
+
+## Text selection
+
+Let users select and copy text. Pass \`textSelection={true}\` for the system menu (Copy, Select All, Look Up, Share), or pass a config object to add custom actions like "Ask AI".
+
+\`\`\`tsx
+<LLMMarkdown
+  text={text}
+  textSelection={{
+    enabled: true,
+    actions: [
+      { label: 'Copy',   onPress: (t) => navigator.clipboard.writeText(t) },
+      { label: 'Ask AI', onPress: (t) => askAI(t) },
+    ],
+    onSelect: (t) => console.log('selection:', t),
+  }}
+/>
+\`\`\`
+
+**Web**: renders a floating pill toolbar above the active selection. Works on any content.
+
+**Native**: consecutive paragraph / heading / list / hr blocks render inside one \`<TextInput>\` so iOS \`UITextView\` shows a continuous highlight across them — the same UX ChatGPT uses. Non-text blocks (code, table, blockquote, image, directives) intentionally break the range. Custom \`actions\` reach plain-text code blocks when the optional peer \`react-native-selectable-text\` is installed; rich paragraphs fall back to the system menu.
+
+---
+
+## Block slots (toolbars for code / table / image)
+
+Attach a before / after / actions toolbar to specific block types. Most common use: a Copy button on code blocks, an Export button on tables.
+
+\`\`\`tsx
+<LLMMarkdown
+  text={text}
+  blockSlots={{
+    code: {
+      actions: [
+        { label: 'Copy', onPress: (n) => navigator.clipboard.writeText(n.value) },
+        { label: 'Run',  onPress: (n) => runCode(n.lang, n.value) },
+      ],
+    },
+    table: {
+      actions: [
+        { label: 'Export CSV', onPress: (n) => downloadCSV(tableToCSV(n)) },
+      ],
+    },
+    image: {
+      after: (node) => <Caption text={node.alt} />,
+    },
+  }}
+/>
+\`\`\`
+
+The \`onPress\` callback receives the **full AST node** — you have access to everything the renderer sees:
+
+- \`code\` → \`{ value, lang, children }\`
+- \`table\` → \`{ children, align }\` where \`children\` is rows → cells → inline nodes
+- \`image\` → \`{ url, alt, title }\`
+
+\`actions\` is a shortcut that renders a themed pill toolbar below the block. For full UI control, use \`before\` / \`after\` — each returns arbitrary \`ReactNode\`s rendered above / below the block. First cut supports \`code\`, \`table\`, and \`image\`; other block types are customizable via the \`components\` override map instead.
 
 ---
 

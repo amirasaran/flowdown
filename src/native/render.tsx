@@ -65,10 +65,78 @@ export function RenderNode({ node }: { node: AnyNode }): ReactNode {
 
   const Comp = Override ?? Default;
   if (!Comp) return null;
-  return (
+  const rendered = (
     <Comp node={node} theme={theme}>
       {inner}
     </Comp>
+  );
+  return applyBlockSlots(node, rendered, ctx.blockSlots, theme);
+}
+
+// ---- per-block slots (before / after / actions toolbar) -------------------
+
+import type { BlockSlots, BlockSlot as BlockSlotT } from '../shared/types';
+import { View, Pressable } from './rn';
+
+function applyBlockSlots(
+  node: AnyNode,
+  rendered: ReactNode,
+  slots: BlockSlots,
+  theme: Theme
+): ReactNode {
+  const slot = (slots as Record<string, BlockSlotT<AnyNode> | undefined>)[node.type];
+  if (!slot) return rendered;
+  const hasBefore = !!slot.before;
+  const hasAfter = !!slot.after;
+  const hasActions = !!slot.actions && slot.actions.length > 0;
+  if (!hasBefore && !hasAfter && !hasActions) return rendered;
+  return (
+    <View>
+      {hasBefore ? slot.before!(node) : null}
+      {rendered}
+      {hasAfter ? slot.after!(node) : null}
+      {hasActions ? <BlockActionBar actions={slot.actions!} node={node} theme={theme} /> : null}
+    </View>
+  );
+}
+
+function BlockActionBar({
+  actions,
+  node,
+  theme,
+}: {
+  actions: { label: string; onPress: (node: AnyNode) => void }[];
+  node: AnyNode;
+  theme: Theme;
+}) {
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        gap: theme.spacing.sm,
+        marginTop: theme.spacing.sm,
+        flexWrap: 'wrap',
+      }}
+    >
+      {actions.map((a, i) => (
+        <Pressable
+          key={`${a.label}-${i}`}
+          onPress={() => a.onPress(node)}
+          style={{
+            paddingHorizontal: theme.spacing.md,
+            paddingVertical: theme.spacing.sm,
+            borderRadius: theme.radii.md,
+            backgroundColor: theme.colors.surface,
+            borderWidth: 1,
+            borderColor: theme.colors.border,
+          }}
+        >
+          <Text style={{ color: theme.colors.text, fontSize: theme.typography.sizeSmall, fontWeight: '500' }}>
+            {a.label}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
   );
 }
 

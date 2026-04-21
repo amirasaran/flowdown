@@ -6,6 +6,9 @@ import type {
   RootNode,
   Direction,
   AnyNode,
+  CodeNode,
+  TableNode,
+  ImageNode,
 } from '../core/parser/ast';
 
 export type { BlockNode, InlineNode, DirectiveNode, RootNode, Direction, AnyNode };
@@ -103,6 +106,32 @@ export type DirectiveRegistry = Record<string, ComponentType<DirectiveComponentP
 
 export type CardAnimationPreset = 'none' | 'fade' | 'fadeSlide' | 'scale' | 'typewriter';
 
+export interface BlockAction<N = unknown> {
+  /** Label shown on the toolbar button. */
+  label: string;
+  /** Fired when the user taps the action. Receives the rendered block's AST node. */
+  onPress: (node: N) => void;
+}
+
+export interface BlockSlot<N> {
+  /** Rendered above the block. Receives the AST node for context. */
+  before?: (node: N) => ReactNode;
+  /** Rendered below the block. Receives the AST node for context. */
+  after?: (node: N) => ReactNode;
+  /** Shortcut: library renders a themed pill toolbar below the block with
+   *  these actions. For full UI control use `after` instead. */
+  actions?: BlockAction<N>[];
+}
+
+/** Per-block-type slots. Each entry can supply `before`, `after`, and/or
+ *  `actions`. The library renders them around the block's default output.
+ *  First supported types: code, table, image. */
+export interface BlockSlots {
+  code?: BlockSlot<CodeNode>;
+  table?: BlockSlot<TableNode>;
+  image?: BlockSlot<ImageNode>;
+}
+
 export interface TextSelectionAction {
   /** Label shown in the selection menu. */
   label: string;
@@ -170,6 +199,9 @@ export interface LLMMarkdownProps {
    *  `true` is sugar for `{ enabled: true }` (system menu only). Pass a config
    *  to add custom actions or listen to selection changes. */
   textSelection?: TextSelection;
+  /** Per-block-type slots (before/after/actions) for block renderers that
+   *  benefit from a toolbar — e.g. Copy/Run on code blocks, Export on tables. */
+  blockSlots?: BlockSlots;
 }
 
 export type DeepPartial<T> = T extends object
