@@ -1,8 +1,9 @@
-import { createContext, memo, useContext, useState, type ReactNode } from 'react';
+import { createContext, Fragment, memo, useContext, useState, type ReactNode } from 'react';
 // @ts-ignore - react-native peer dep
 import { useWindowDimensions } from 'react-native';
 import type { Theme } from '../../shared/types';
 import type {
+  AnyNode,
   HeadingNode,
   ParagraphNode,
   TextNode,
@@ -17,6 +18,7 @@ import type {
   TableCellNode,
   BaseNode,
 } from '../../core/parser/ast';
+import { RenderNode } from '../render';
 import { View, Text, Image, Linking, Pressable } from '../rn';
 import { HScroll } from '../scroll/HScroll';
 import { useBlockStyle } from '../../core/blockStyle';
@@ -33,6 +35,10 @@ import {
 // margins in this case — otherwise every bullet gets paragraph-top + paragraph-
 // bottom + list-item-bottom stacked, producing visibly huge gaps.
 const InsideListItemContext = createContext(false);
+// Same idea for blockquote bodies — the wrapper supplies its own padding,
+// so the inner paragraph must not also stack its marginVertical or the
+// text appears to float away from the top/bottom of the quote bar.
+const InsideBlockquoteContext = createContext(false);
 
 const memoEqual = (
   a: { node: BaseNode; theme: Theme },
@@ -64,41 +70,39 @@ export const HeadingR = memo(function HeadingR({
     6: theme.typography.sizeBase,
   };
   const headingSize = sizeMap[node.depth] ?? theme.typography.sizeBase;
-  const headingStyle = [
-    {
-      fontSize: headingSize,
-      // Tighter than body copy (body uses theme.typography.lineHeight ~1.55)
-      // but generous enough that wrapped heading lines — common in RTL /
-      // long headings — don't collide with descenders on the line above.
-      lineHeight: Math.round(headingSize * 1.25),
-      fontWeight: '700' as const,
-      color: theme.colors.text,
-      // Inside a SelectableBlock group, block-level margins are swallowed by
-      // the outer LLMSelectableTextView's layout box — the native UITextView
-      // renders attributed text at the top, leaving the remaining height as
-      // empty reserved space. Group children use \n\n separators instead.
-      // Outside a group, only a top margin — the following block brings its
-      // own marginTop and stacking both produces a visible gap between a
-      // heading and its body (code, table, paragraph, etc.).
-      ...(insideGroup ? null : { marginTop: theme.spacing.lg }),
-      // writingDirection drives Unicode bidi on iOS; Android ignores it and
-      // relies on textAlign for horizontal alignment. Set both so RTL
-      // headings hug the right edge on both platforms.
-      writingDirection: node.dir,
-      textAlign: (node.dir === 'rtl' ? 'right' : 'left') as 'right' | 'left',
-    },
+  // Layout-only style — applied to the outer wrapper. Putting margins on
+  // both wrapper and inner Text duplicates them on iOS (the inner Text's
+  // marginTop becomes empty space *inside* the UITextView, on top of the
+  // wrapper's own marginTop between blocks).
+  const outerStyle = [
+    insideGroup ? null : { marginTop: theme.spacing.md },
     userStyle,
   ];
+  // Text-only style — drives the actual glyph rendering.
+  const textStyle = {
+    fontSize: headingSize,
+    // Tighter than body copy (body uses theme.typography.lineHeight ~1.55)
+    // but generous enough that wrapped heading lines — common in RTL /
+    // long headings — don't collide with descenders on the line above.
+    lineHeight: Math.round(headingSize * 1.25),
+    fontWeight: '700' as const,
+    color: theme.colors.text,
+    // writingDirection drives Unicode bidi on iOS; Android ignores it and
+    // relies on textAlign for horizontal alignment. Set both so RTL
+    // headings hug the right edge on both platforms.
+    writingDirection: node.dir,
+    textAlign: (node.dir === 'rtl' ? 'right' : 'left') as 'right' | 'left',
+  };
   // When selection is on and we're not already inside a parent SelectableBlock,
   // wrap ourselves so iOS UITextView drives highlighting + custom menu.
   if (sel.enabled && !insideGroup) {
     return (
-      <SelectableBlock style={headingStyle}>
-        <Text style={headingStyle}>{children}</Text>
+      <SelectableBlock style={outerStyle}>
+        <Text style={textStyle}>{children}</Text>
       </SelectableBlock>
     );
   }
-  return <Text style={headingStyle}>{children}</Text>;
+  return <Text style={[outerStyle, textStyle]}>{children}</Text>;
 }, memoEqual);
 
 export const ParagraphR = memo(function ParagraphR({
@@ -113,11 +117,14 @@ export const ParagraphR = memo(function ParagraphR({
   const sel = useTextSelection();
   const insideGroup = useInsideSelectableGroup();
   const insideListItem = useContext(InsideListItemContext);
+  const insideBlockquote = useContext(InsideBlockquoteContext);
   const { style: userStyle } = useBlockStyle(node);
-  // Suppress own vertical margin inside a SelectableBlock group (see HeadingR)
-  // and inside a list item (the item already spaces siblings via its own
-  // marginBottom — doubling it here creates the huge gap between bullets).
-  const suppressMargin = insideGroup || insideListItem;
+  // Suppress own vertical margin inside a SelectableBlock group (see HeadingR),
+  // inside a list item (the item already spaces siblings via its own
+  // marginBottom — doubling it here creates the huge gap between bullets), and
+  // inside a blockquote (the wrapper already pads its content; an extra
+  // marginVertical here pushes the text down so it floats below the bar).
+  const suppressMargin = insideGroup || insideListItem || insideBlockquote;
   // RN forbids <Image> (and most non-Text views) as a child of <Text>. If the
   // paragraph contains any image child, fall back to a View wrapper so each
   // rendered child becomes a block-level sibling instead of a Text descendant.
@@ -137,31 +144,34 @@ export const ParagraphR = memo(function ParagraphR({
       </View>
     );
   }
-  const paragraphStyle = [
-    {
-      color: theme.colors.text,
-      fontSize: theme.typography.sizeBase,
-      lineHeight: theme.typography.sizeBase * theme.typography.lineHeight,
-      ...(suppressMargin ? null : { marginVertical: theme.spacing.sm }),
-      // writingDirection is iOS-only; Android needs textAlign for RTL blocks
-      // to hug the right edge. Pair them so bidi works on both platforms.
-      writingDirection: node.dir,
-      textAlign: (node.dir === 'rtl' ? 'right' : 'left') as 'right' | 'left',
-    },
+  // Layout-only style — applied to the outer wrapper. Margins on the inner
+  // Text are duplicated by iOS UITextView as empty space *inside* the
+  // selectable box, in addition to the wrapper's between-block margin.
+  const outerStyle = [
+    suppressMargin ? null : { marginVertical: theme.spacing.sm },
     userStyle,
   ];
+  const textStyle = {
+    color: theme.colors.text,
+    fontSize: theme.typography.sizeBase,
+    lineHeight: theme.typography.sizeBase * theme.typography.lineHeight,
+    // writingDirection is iOS-only; Android needs textAlign for RTL blocks
+    // to hug the right edge. Pair them so bidi works on both platforms.
+    writingDirection: node.dir,
+    textAlign: (node.dir === 'rtl' ? 'right' : 'left') as 'right' | 'left',
+  };
   // When selection is on and we're not already inside a parent SelectableBlock,
   // wrap ourselves so iOS UITextView / Android TextView drive highlighting.
   // Native side extracts attributed text from child <Text> subtree, so
   // bold/italic/link/code formatting is preserved.
   if (sel.enabled && !insideGroup) {
     return (
-      <SelectableBlock style={paragraphStyle}>
-        <Text style={paragraphStyle}>{children}</Text>
+      <SelectableBlock style={outerStyle}>
+        <Text style={textStyle}>{children}</Text>
       </SelectableBlock>
     );
   }
-  return <Text style={paragraphStyle}>{children}</Text>;
+  return <Text style={[outerStyle, textStyle]}>{children}</Text>;
 }, memoEqual);
 
 export const TextR = memo(function TextR({ node }: { node: TextNode; theme: Theme }) {
@@ -264,26 +274,36 @@ export const BlockquoteR = memo(function BlockquoteR({
 }) {
   const isRtl = node.dir === 'rtl';
   const { style: userStyle } = useBlockStyle(node);
+  // Use a border on the content view rather than a sibling bar in a flex row.
+  // A flex-row bar relies on cross-axis stretch to size itself to the row's
+  // height — that breaks when the content side is a native UITextView whose
+  // measured height doesn't always propagate back through Yoga, leaving a
+  // bar that only spans the first line. A border auto-tracks the wrapper's
+  // full height regardless of how the children measure.
   return (
     <View
       style={[
         {
-          flexDirection: isRtl ? 'row-reverse' : 'row',
           marginVertical: theme.spacing.sm,
+          paddingVertical: theme.spacing.xs,
+          ...(isRtl
+            ? {
+                borderRightWidth: 3,
+                borderRightColor: theme.colors.blockquoteBar,
+                paddingRight: theme.spacing.md,
+              }
+            : {
+                borderLeftWidth: 3,
+                borderLeftColor: theme.colors.blockquoteBar,
+                paddingLeft: theme.spacing.md,
+              }),
         },
         userStyle,
       ]}
     >
-      <View
-        style={{
-          width: 4,
-          backgroundColor: theme.colors.blockquoteBar,
-          borderRadius: 2,
-          marginRight: isRtl ? 0 : theme.spacing.md,
-          marginLeft: isRtl ? theme.spacing.md : 0,
-        }}
-      />
-      <View style={{ flex: 1 }}>{children}</View>
+      <InsideBlockquoteContext.Provider value={true}>
+        {children}
+      </InsideBlockquoteContext.Provider>
     </View>
   );
 }, memoEqual);
@@ -299,15 +319,27 @@ export const ListR = memo(function ListR({
 }) {
   const insideGroup = useInsideSelectableGroup();
   const { style: userStyle } = useBlockStyle(node);
-  // Inside a SelectableBlock group, the outer <Text> (from
-  // SelectableGroupedChildren) forbids <View> children. Render the whole list
-  // as inline Text. Each ListItemR emits its own trailing "\n", so items are
-  // separated naturally and we don't need sibling separator spans here (which
-  // Fabric drops during attributed-text flattening).
+  // Inside a SelectableBlock group, the outer <Text> forbids <View> children.
+  // Render items manually so we own the inter-item separator: a single "\n"
+  // between siblings (no trailing — the outer group adds its own "\n\n"
+  // before the next sibling, and a trailing "\n" here would compound into
+  // an extra blank line at the end of every list). The lineHeight bump
+  // gives bullets a touch more breathing room than body copy without
+  // forcing a blank line between them.
   // Tradeoff: wrapped lines of a long item won't hang under the first
   // character — they wrap back to the outer Text's left edge.
   if (insideGroup) {
-    return <Text>{children}</Text>;
+    const items = (node.children ?? []) as AnyNode[];
+    return (
+      <Text style={{ lineHeight: theme.typography.sizeBase * 1.85 }}>
+        {items.map((item, i) => (
+          <Fragment key={item.id}>
+            {i > 0 ? '\n' : ''}
+            <RenderNode node={item} />
+          </Fragment>
+        ))}
+      </Text>
+    );
   }
   return (
     <View style={[{ marginVertical: theme.spacing.sm }, userStyle]}>{children}</View>
@@ -328,17 +360,16 @@ export const ListItemR = memo(function ListItemR({
   const isTask = node.checked !== undefined && node.checked !== null;
   const marker = isTask ? (node.checked ? '☑' : '☐') : '•';
   const { style: userStyle } = useBlockStyle(node);
-  // Group mode: flex row isn't available inside the outer <Text>. Emit marker
-  // + content + trailing "\n" as inline Text. The newline lives at the end of
-  // the item's own content so Fabric's attributed-text flattening preserves
-  // it (leading "\n" inside a nested Text gets trimmed by RN).
+  // Group mode: flex row isn't available inside the outer <Text>. Emit only
+  // marker + content — ListR owns the inter-item separator so we don't leave
+  // a trailing "\n" after the last item that would compound with the outer
+  // group's "\n\n" into a blank line at the end of every list.
   if (insideGroup) {
     return (
       <Text>
         {marker}
         {'  '}
         {children}
-        {'\n'}
       </Text>
     );
   }
@@ -347,7 +378,7 @@ export const ListItemR = memo(function ListItemR({
       style={[
         {
           flexDirection: rtl ? 'row-reverse' : 'row',
-          marginBottom: theme.spacing.xs,
+          marginBottom: theme.spacing.sm,
         },
         userStyle,
       ]}

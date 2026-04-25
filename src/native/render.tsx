@@ -319,7 +319,7 @@ function SelectableGroupedChildren({ nodes }: { nodes: AnyNode[] }) {
         const leadsWithHeading = g.nodes[0]?.type === 'heading';
         const endsWithHeading = g.nodes[g.nodes.length - 1]?.type === 'heading';
         const groupStyle = {
-          marginTop: leadsWithHeading ? theme.spacing.lg : theme.spacing.sm,
+          marginTop: leadsWithHeading ? theme.spacing.md : theme.spacing.sm,
           marginBottom: endsWithHeading ? 0 : theme.spacing.sm,
         };
         return (

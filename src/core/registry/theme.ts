@@ -26,7 +26,7 @@ export const defaultTheme: Theme = {
     sizeH2: 24,
     sizeH3: 20,
     sizeH4: 18,
-    lineHeight: 1.55,
+    lineHeight: 1.6,
   },
   motion: {
     enterDuration: 200,
