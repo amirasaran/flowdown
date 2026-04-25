@@ -1,6 +1,6 @@
 {
   "name": "llm-markdown",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Universal streaming markdown renderer for React and React Native, built for AI output.",
   "license": "MIT",
   "author": "Amir Asaran",
